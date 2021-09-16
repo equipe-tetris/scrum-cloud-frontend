@@ -123,7 +123,7 @@ Este sistema pode permitir que pessoas cadastradas utilizem o sistema, montando 
 
 <br><br>  
 
-- **SPRINT 2** :heavy_check_mark:
+- **SPRINT 2** 
    - Permitir cadastro de Usuário
    - Permitir cadastro de Times de Desenvolvimento 
    - Disparar e-mails com links para cadastramento
@@ -137,7 +137,7 @@ Este sistema pode permitir que pessoas cadastradas utilizem o sistema, montando 
 
 <br><br>
 
-- **SPRINT 3** :heavy_check_mark:
+- **SPRINT 3** 
    - Gerar link de reuniões marcadas para ser compartilhado
    - Permitir definir Scrum Master da reunião
    - Evidenciar na tela item em votação
@@ -150,7 +150,7 @@ Este sistema pode permitir que pessoas cadastradas utilizem o sistema, montando 
 
 <br><br> 
 
-- **SPRINT 4** :heavy_check_mark:
+- **SPRINT 4** 
    - Permitir exportar os item votados e seus valores
    - Permitir sinalização de termino de itens da categoria em questão discutida.
    - Permitir a sinalização de 0 ao número total de itens da categoria em questão discutida na reunião de Retrospective
