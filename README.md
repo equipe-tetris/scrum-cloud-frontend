@@ -193,10 +193,7 @@ Este sistema pode permitir que pessoas cadastradas utilizem o sistema, montando 
    ![MER_ModeloConceitual](./assets/images/MER.jpeg "MER_Conceitual_ScrumCloud")
 <br><br>
 
-- **Modelo Lógico**
-  
-   ![Em Construção]
-<br><br>
+
 </div>
 
 ## :mortar_board: Wireframes 
@@ -234,9 +231,6 @@ Este sistema pode permitir que pessoas cadastradas utilizem o sistema, montando 
   - ![DiretoriosLogs](./assets/images/wireframes/tela-sala-planning-poker-sm.png "Tela Sala Planning Poker SM")
 <br><br>
 
-### :newspaper: **Banco de Dados** 
-
-	. Em Construção
 
 <br><br>
 
