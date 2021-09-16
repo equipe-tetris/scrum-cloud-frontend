@@ -15,7 +15,7 @@
 A equipe Tetris é composta pelos seguintes estudantes do 3º semestre de Banco de Dados pela FATEC de São José dos Campos:
 
 - ***Product Owner***
-  - [Nágella Nasser](https://github.com/nagellanasser) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/nagellanasser/)  
+  - [Nágella Nasser](https://github.com/nagellanasser) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/nagellanasser/)  
 - ***Scrum Master***
   - [Davi das Neves Machado](https://github.com/machadondavi) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/davinevesmachado/)
 - ***Team Dev :***
