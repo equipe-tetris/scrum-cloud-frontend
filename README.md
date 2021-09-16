@@ -41,7 +41,7 @@ Este sistema pode permitir que pessoas cadastradas utilizem o sistema, montando 
 ## :pencil: Requisitos funcionais 
 • Cadastros de Usuários contendo (Nome, e-mail e senha)<br><br>
 • Existem dois perfis de usuário:<br>
-	&nbsp;&nbsp;o Scrum Master<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;o Scrum Master<br>
 	o Desenvolvedor<br><br>
 • Por padrão, todos que se cadastram serão Scrum Masters<br><br>
 • O Scrum Master após se cadastrar poderá criar seu time no sistema.<br><br>
