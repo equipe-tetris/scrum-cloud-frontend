@@ -17,14 +17,14 @@ A equipe Tetris é composta pelos seguintes estudantes do 3º semestre de Banco 
 - ***Product Owner***
   - [Nágella Nasser](https://github.com/nagellanasser) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/nagellanasser/)  
 - ***Scrum Master***
-  - [Davi das Neves Machado](https://github.com/machadondavi) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/davinevesmachado/)
+  - [Davi das Neves Machado](https://github.com/machadondavi) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/davinevesmachado/)
 - ***Team Dev :***
-  - [Alexia Karine Silva dos Santos](https://github.com/alexiakarine) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/alexia-karine-silva-5b0a79116/)
-  - [Gabriel Oliveira Sana](https://github.com/gabsana) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/gabriel-sana-ba91a4147/)
-  - [Guilherme de Oliveira Perfeito](https://github.com/guitambau) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/marcos-francisco-411800201)
-  - [Jefferson Tavares de Araújo](https://github.com/jefferson-tavares-araujo) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/jeffersontavaresaraujo/)
-  - [Renata Garcia Nonato](https://github.com/RenataGarciaNonato) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/mwlite/in/renata-garcia-2a84821b7)
-  - [Valdiney José do Nascimento](https://github.com/Valdineynascimento) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/valdiney-jos%C3%A9-do-nascimento-68a136214/)
+  - [Alexia Karine Silva dos Santos](https://github.com/alexiakarine) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/alexia-karine-silva-5b0a79116/)
+  - [Gabriel Oliveira Sana](https://github.com/gabsana) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/gabriel-sana-ba91a4147/)
+  - [Guilherme de Oliveira Perfeito](https://github.com/guitambau) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/marcos-francisco-411800201)
+  - [Jefferson Tavares de Araújo](https://github.com/jefferson-tavares-araujo) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/jeffersontavaresaraujo/)
+  - [Renata Garcia Nonato](https://github.com/RenataGarciaNonato) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/mwlite/in/renata-garcia-2a84821b7)
+  - [Valdiney José do Nascimento](https://github.com/Valdineynascimento) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/valdiney-jos%C3%A9-do-nascimento-68a136214/)
 </div>
 <br>
 
