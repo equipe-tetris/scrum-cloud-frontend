@@ -1,5 +1,5 @@
 import React from "react";
-import  ImageUploading from 'react-images-uploading'; 
+//import  ImageUploading from 'react-images-uploading'; 
 
 import "./index.css";
 
@@ -7,7 +7,7 @@ import avatar from "../../assets/imagens-projeto/avatar.png";
 
 
 const Register = () => {
-  return (
+   return (
     <div className="container">
       <div className="box-form">
         <div className="avatar">
@@ -16,7 +16,6 @@ const Register = () => {
 
           <form>
             
-            <button type="button" className="btn btn-outline-secund">Inclua sua Foto </button>
             <p>Cadastro</p>
             <div className="form-floating">
                 <input type="text" className="form-control" id="floatingInput" placeholder="Nome completo"></input>
