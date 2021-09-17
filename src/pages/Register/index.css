@@ -1,0 +1,53 @@
+.box-form button {
+    margin-top: 15px;
+    width: 125px;
+}
+
+form {
+    height: 470px;
+    text-align: center;
+    
+}
+
+form .form-floating {
+    margin: 15px;
+    width: 300px;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 100px;
+   
+}
+
+.box-form {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
+    padding: 35px 35px 55px 35px;
+    background-color: rgb(239, 248, 248);
+}
+
+.box-form .avatar {
+    display: flex;
+    justify-content: center;
+}
+
+.box-form .avatar img{
+    max-width: 100px;
+    max-height: 100px;
+    margin-bottom: 15px;
+    border-radius: 30%;
+}
+
+.box-form p {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.box-form button {
+    margin-top: 15px;
+    width: 125px;
+}
+
+
