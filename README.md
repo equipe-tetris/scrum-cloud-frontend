@@ -1,4 +1,4 @@
-﻿<div style = "text-align:center">
+<div style = "text-align:center">
 
 # Seja bem vindo ao <img src="/assets/images/icon-scrumcloud.png">
 
@@ -224,9 +224,15 @@ Equipes de Desenvolvimento praticantes de metodologias ágeis que utilizam cerim
 </div>
 
 ## :page_with_curl: Product Backlog  
-<div class="users-stories" style= "text-align:justify">
+<div class="product-backlog" style= "text-align:justify">
 
-![Product Backlog](./assets/images/backlog.jpg "Backlog - Necessidades do Cliente")
+![Product Backlog](./assets/images/ProductBackLog_parte_I.PNG "Backlog")<br>
+
+![Product Backlog](./assets/images/ProductBackLog_parte_II.PNG "Backlog")<br>
+
+![Product Backlog](./assets/images/ProductBackLog_parte_II.PNG "Backlog")<br>
+
+
 <br>  
 </div>
 <br>
@@ -235,19 +241,19 @@ Equipes de Desenvolvimento praticantes de metodologias ágeis que utilizam cerim
 <div class="users-stories" style= "text-align:justify">
 
 
-![Product Backlog](./assets/images/userstories/01.jpg "User Stories")<br>
+![User Stories](./assets/images/userstories/01.jpg "User Stories")<br>
 
-![Product Backlog](./assets/images/userstories/02.jpg "User Stories")<br>
+![User Stories](./assets/images/userstories/02.jpg "User Stories")<br>
 
-![Product Backlog](./assets/images/userstories/03.jpg "User Stories")<br>
+![User Stories](./assets/images/userstories/03.jpg "User Stories")<br>
 
-![Product Backlog](./assets/images/userstories/04.jpg "User Stories")<br>
+![User Stories](./assets/images/userstories/04.jpg "User Stories")<br>
 
-![Product Backlog](./assets/images/userstories/05.jpg "User Stories")<br>
+![User Stories](./assets/images/userstories/05.jpg "User Stories")<br>
 
-![Product Backlog](./assets/images/userstories/06.jpg "User Stories")<br>
+![User Stories](./assets/images/userstories/06.jpg "User Stories")<br>
 
-![Product Backlog](./assets/images/userstories/07.jpg "User Stories")
+![User Stories](./assets/images/userstories/07.jpg "User Stories")
 
 <br>  
 </div>
