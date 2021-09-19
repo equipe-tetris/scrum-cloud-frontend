@@ -1,6 +1,6 @@
 <div style = "text-align:center">
 
-# Seja bem vindo ao <img src="/assets/images/icon-scrumcloud.png">
+# Seja bem-vindo ao <img src="/assets/images/icon-scrumcloud.png">
 
 </div>
 <div style="text-align:center">
