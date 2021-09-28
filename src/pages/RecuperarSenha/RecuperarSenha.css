@@ -1,53 +1,43 @@
-.box-form button {
-    margin-top: 15px;
-    width: 125px;
-}
-
-form {
-    height: 470px;
+.container-recuperar-senha form {
+    height: 250px;
     text-align: center;
-    
 }
 
-form .form-floating {
+.container-recuperar-senha form .form-floating {
     margin: 15px;
     width: 300px;
 }
 
-.container {
+.container-recuperar-senha {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 100px;
-   
 }
 
-.box-form {
+.container-recuperar-senha .box-form {
     box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
-    padding: 35px 35px 55px 35px;
-    background-color: rgb(239, 248, 248);
+    padding: 35px 35px 20px 35px;
+    height: 440px;
 }
 
-.box-form .avatar {
+.container-recuperar-senha .box-form .logo {
     display: flex;
     justify-content: center;
 }
 
-.box-form .avatar img{
+.container-recuperar-senha .box-form .logo img{
     max-width: 100px;
     max-height: 100px;
     margin-bottom: 15px;
-    border-radius: 30%;
 }
 
-.box-form p {
+.container-recuperar-senha .box-form p {
     font-size: 25px;
     font-weight: bold;
 }
 
-.box-form button {
+.container-recuperar-senha .box-form button {
     margin-top: 15px;
     width: 125px;
 }
-
-

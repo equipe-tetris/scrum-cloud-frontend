@@ -1,14 +1,23 @@
-import React from "react";
-//import  ImageUploading from 'react-images-uploading'; 
+import React, { useState } from "react";
 
-import "./index.css";
+import "./Register.css";
 
 import avatar from "../../assets/imagens-projeto/avatar.png";
 
 
 const Register = () => {
+
+
+  const[nome, setNome] = useState('');
+  const[email, setEmail] = useState('');
+  const[senha, setSenha] = useState('');
+  const[confirmarSenha, setConfirmarSenha] = useState('');
+  const[tipoUsuario, setTipoUsuario] = useState('');
+
+
+
    return (
-    <div className="container">
+    <div className="container-register">
       <div className="box-form">
         <div className="avatar">
             <img src={avatar}></img>
@@ -26,10 +35,6 @@ const Register = () => {
                 <label htmlFor="floatingInput">E-mail</label>
             </div>
             <div className="form-floating">
-                <input type="text" className="form-control" id="floatingInput" placeholder="Usuário"></input>
-                <label htmlFor="floatingInput">Usuário</label>
-            </div>
-            <div className="form-floating">
                 <input type="password" className="form-control" id="floatingPassword" placeholder="Senha"></input>
                 <label htmlFor="floatingPassword">Senha</label>
             </div>
@@ -37,6 +42,17 @@ const Register = () => {
                 <input type="password" className="form-control" id="floatingPassword" placeholder="Confirme a Senha"></input>
                 <label htmlFor="floatingPassword">Confirme a senha</label>
             </div>        
+            <br></br>
+            <span className="label">Qual será seu papel?</span>
+            <br></br>
+            <input className="form-check-input" type="radio" name="tipoUser" id="tipoUser" value="SM"></input>
+              <label className="form-check-label" htmlFor="exampleRadios1">
+                Scrum Master
+              </label>
+            <input className="form-check-input" type="radio" name="tipoUser" id="tipoUser" value="DEV"></input>
+              <label className="form-check-label" htmlFor="exampleRadios1">
+                Desenvolvedor
+              </label>
             <br></br>
             <button type="button" className="btn btn-outline-primary">Cadastrar</button>
           </form>

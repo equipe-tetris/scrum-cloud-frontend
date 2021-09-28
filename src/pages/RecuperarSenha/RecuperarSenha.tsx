@@ -1,39 +1,31 @@
 import React from 'react';
-import './Login.css'
+import './RecuperarSenha.css'
 
 import Logo from '../../assets/imagens-projeto/logo-scrumcloud-bg.png';
 
-import { Link } from 'react-router-dom';
-
-function Login(){
+function RecuperarSenha(){
     return (
-        <div className="container-login">
+        <div className="container-recuperar-senha">
                 <div className="box-form">
                     <div className="logo">
                         <img src={Logo}></img>
                     </div>
             
                     <form>
-                        <p>Seja bem vindo!</p>
+                        <p>Confirme seus dados</p>
                         <div className="form-floating">
                             <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com"></input>
                             <label htmlFor="floatingInput">E-mail</label>
                         </div>
                         <div className="form-floating">
                             <input type="password" className="form-control" id="floatingPassword" placeholder="Senha"></input>
-                            <label htmlFor="floatingPassword">Senha</label>
+                            <label htmlFor="floatingPassword">Confirme seu e-mail</label>
                         </div>
-                        <Link to='/recuperar-senha'>Esqueceu sua senha?</Link>
-                        <br></br>
-                        <button type="button" className="btn btn-outline-primary">Login</button>
-                        <br></br>
-                        <span>Ou</span>
-                        <br></br>
-                        <Link to='/cadastro'><button type="button" className="btn btn-outline-primary">Cadastre-se</button></Link>
+                        <button type="button" className="btn btn-outline-primary">Enviar</button>
                     </form>
                 </div>   
         </div>  
     )
 }
 
-export default Login;
+export default RecuperarSenha;

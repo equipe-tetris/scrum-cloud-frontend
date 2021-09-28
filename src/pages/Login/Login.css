@@ -1,42 +1,44 @@
-form {
+.container-login form {
     height: 250px;
     text-align: center;
 }
 
-form .form-floating {
+.container-login form .form-floating {
     margin: 15px;
     width: 300px;
 }
 
-.container {
+.container-login {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 100px;
+    margin-top: 50px;
 }
 
-.box-form {
+.container-login .box-form {
     box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
-    padding: 35px 35px 55px 35px;
+    height: 550px;
+    padding: 35px 35px 20px 35px;
 }
 
-.box-form .logo {
+.container-login .box-form .logo {
     display: flex;
     justify-content: center;
 }
 
-.box-form .logo img{
+.container-login .box-form .logo img{
     max-width: 100px;
     max-height: 100px;
     margin-bottom: 15px;
 }
 
-.box-form p {
+.container-login .box-form p {
     font-size: 25px;
     font-weight: bold;
 }
 
-.box-form button {
+.container-login .box-form button {
     margin-top: 15px;
+    margin-bottom: 15px;
     width: 125px;
 }
