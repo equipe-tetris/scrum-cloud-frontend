@@ -1,25 +1,20 @@
 import React from 'react';
 
 import { BrowserRouter as Router, NavLink, Route, Switch} from 'react-router-dom';
+import Navbar from './components/Navbar/Navbar';
 
-import Login from './pages/Login/Login';
-import Register from './pages/Register/Register';
-import RecuperarSenha from './pages/RecuperarSenha/RecuperarSenha';
+import Routes from './routes/routes';
 
 function App() {
   return (
-    <Router>
       <div className="App">
-
+        <header>
+          <Navbar />
+        </header>
         <main>
-          <Switch>
-            <Route path="/" exact component={Login} />
-            <Route path="/cadastro" component={Register} /> {/*Cria a rota cadastro e importa o componente register*/}
-            <Route path="/recuperar-senha" exact component={RecuperarSenha} />
-          </Switch>
+          <Routes></Routes>
         </main>
       </div>  
-    </Router>
     
   );
 }

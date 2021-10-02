@@ -1,0 +1,14 @@
+.card {
+    width: 13rem;
+    height: 10em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
+}
+
+.card :hover {
+    cursor: pointer;
+    background-color: rgb(211, 210, 210);
+}
+
+.card .card-body {
+    text-align: center;
+}

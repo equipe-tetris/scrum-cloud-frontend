@@ -1,8 +1,8 @@
-const Usuario = {
-    nome: String,
-    email: String,
-    senha: String,
-    tipoUsuario: String
+export interface Usuario {
+    nome: string,
+    email: string,
+    senha: string,
+    tipoUsuario: string
 }
 
-export { Usuario };
+ 
