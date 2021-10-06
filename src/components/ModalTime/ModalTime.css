@@ -1,0 +1,10 @@
+
+
+.modal-time .form-floating {
+    margin: 15px;
+}
+
+.modal-time .btnSubmit {
+    display: flex;
+    justify-content: center;
+}

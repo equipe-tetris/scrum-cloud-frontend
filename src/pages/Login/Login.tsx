@@ -24,13 +24,12 @@ function Login(){
 
        try {
            let res = await authService.authenticate(data);
-           console.log(res)
            authService.setLoggedUser(res.data);
 
            setEmail('');
            setSenha('');
 
-         history.push('/home');
+         history.push('/home/dashboard');
        } catch (error) {
            console.log(error)
        }

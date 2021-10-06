@@ -89,32 +89,7 @@ const Register = () => {
                   onChange={event => setConfirmarSenha(event.target.value)}
                 />
                 <label htmlFor="floatingPassword">Confirme a senha</label>
-            </div>        
-            <br></br>
-            <span className="label">Qual será seu papel?</span>
-            <br></br>
-            <input 
-              className="form-check-input" 
-              type="radio" 
-              name="tipoUser" 
-              id="tipoUser" 
-              value="SM"
-              onChange={ event => setTipoUsuario(event.target.value)} 
-            />
-              <label className="form-check-label" htmlFor="exampleRadios1">
-                Scrum Master
-              </label>
-            <input 
-              className="form-check-input" 
-              type="radio" 
-              name="tipoUser" 
-              id="tipoUser" 
-              value="DEV" 
-              onChange={ event => setTipoUsuario(event.target.value)}
-            />
-              <label className="form-check-label" htmlFor="exampleRadios1">
-                Desenvolvedor
-              </label>
+            </div>                   
             <br></br>
             <button type="submit" className="btn btn-outline-primary">Cadastrar</button>
           </form>

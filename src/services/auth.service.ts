@@ -16,6 +16,11 @@ export const authService = {
         localStorage.setItem("user", parsedData)
     },
 
+    getDataLoggedUser(){
+        const data = localStorage.getItem("user");
+        return JSON.parse(data)
+    },
+
     isAuthenticated(){
         let data = localStorage.getItem("user");
         if(!data) return false;

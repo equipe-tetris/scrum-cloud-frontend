@@ -2,6 +2,7 @@
     width: 13rem;
     height: 10em;
     box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
+    margin-left: 15px;
 }
 
 .card :hover {

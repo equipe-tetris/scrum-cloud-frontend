@@ -1,0 +1,11 @@
+.container-team-page {
+    margin-left: 25px;
+    margin-top: 80px;
+    display: flex;
+}
+
+.container-team-page .box-link {
+    margin-left: 250px;
+    margin-top: 80px;
+}
+
