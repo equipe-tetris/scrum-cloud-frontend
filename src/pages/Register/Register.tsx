@@ -5,6 +5,7 @@ import "./Register.css";
 import avatar from "../../assets/imagens-projeto/avatar.png";
 import { useEffect } from "react";
 import API from "../../config/api";
+import { usuarioService } from "../../services/usuario.service";
 
 const Register = () => {
 
@@ -12,25 +13,30 @@ const Register = () => {
   const[email, setEmail] = useState('');
   const[senha, setSenha] = useState('');
   const[confirmarSenha, setConfirmarSenha] = useState('');
-  const[tipoUsuario, setTipoUsuario] = useState('');
 
-  const onSubmitHandler = (event: any) => {
+  const user = {
+    nome: nome,
+    email: email,
+    senha: senha,
+    tipoUsuario: "SM"
+  }
+
+  const onSubmitHandler = async (event: any) => {
     event.preventDefault();
 
     if(senha === confirmarSenha) {
-      
-      API.post('usuario/cadastrar', {
-        nome: nome,
-        email: email,
-        senha: senha,
-        tipoUsuario: tipoUsuario
-      }).then((res) => console.log(res));
+
+      try {
+        const res = await usuarioService.cadastroSM(user);
+      } catch(e) {
+        console.log(e)
+      }
+     
 
       setNome('');
       setEmail('');
       setSenha('');
       setConfirmarSenha('');
-      setTipoUsuario('');
       
     } else {
       console.log('Senha não são iguais')

@@ -3,5 +3,6 @@ export interface Equipe {
     nome: string,
     descricao: string,
     dataCriacao: Date,
-    usuario: Number
+    usuario: Number,
+    nomeUser: string
 }

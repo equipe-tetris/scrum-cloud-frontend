@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { Equipe } from '../../models/Equipe';
 import { teamService } from '../../services/team.service';
+import { usuarioService } from '../../services/usuario.service';
 
 import './RegisterDev.css';
 
 function RegisterDev() {
 
-    const { id } = useParams();
+    const { id } = useParams<{id?: string}>();
 
     const idNumber = Number(id);
 
-    const [equipe, setEquipe] = useState({});
+    const [equipe, setEquipe] = useState<Equipe>();
 
     const[nome, setNome] = useState('');
     const[email, setEmail] = useState('');
     const[senha, setSenha] = useState('');
     const[confirmarSenha, setConfirmarSenha] = useState('');
 
-  
+    const userDev = {
+        nome: nome,
+        email: email,
+        senha: senha,
+        tipoUsuario: "DEV"
+    }
 
     const buscarTimePorId = async() => {
         try {
@@ -29,18 +36,33 @@ function RegisterDev() {
         } catch(e) { console.log(e); }
     }
 
+    const inserirDev = async(event: any) => {
+        event.preventDefault();
+
+        try {
+            const res = await usuarioService.cadastroDev(userDev, idNumber);
+
+            setNome('');
+            setEmail('');
+            setSenha('');
+            setConfirmarSenha('');
+
+            console.log(res)
+        } catch(e) {
+            console.log(e)
+        }
+    }
+
 
     useEffect(() => {
         buscarTimePorId();
-    }, [id])
-
-    console.log(equipe)
+    }, [id]);
 
     return (
         <div className="container-register-dev">
             <div className="box-form">
 
-                <form>
+                <form onSubmit={inserirDev}>
                     <p>Cadastro DEV</p>
                     <div className="form-floating">
                         <input
