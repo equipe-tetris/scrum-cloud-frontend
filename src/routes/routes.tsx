@@ -8,6 +8,8 @@ import RecuperarSenha from '../pages/RecuperarSenha/RecuperarSenha';
 import Register from '../pages/Register/Register';
 import RegisterDev from '../pages/RegisterDev/RegisterDev';
 import TeamPage from '../pages/TeamPage/TeamPage';
+import ConfigurationPlanningPoker from '../pages/ConfigurationPlanningPoker/ConfigurationPlanningPoker';
+
 
 const Routes = () => {
     return( 
@@ -17,8 +19,9 @@ const Routes = () => {
                 <Route path="/cadastro" component={Register} /> {/*Cria a rota cadastro e importa o componente register*/}
                 <Route path="/recuperar-senha" component={RecuperarSenha} />
                 <Route path="/home/dashboard" component={Home} />
+                <Route path="/configurationroom" component={ConfigurationPlanningPoker} />
                 <Route path="/time/:id" exact component={TeamPage} />
-                <Route path="/cadastro-dev/:id" exact component={RegisterDev} />
+                <Route path="/cadastro-dev/:id" component={RegisterDev} />
             </Switch>
         </Router>
     )

@@ -54,12 +54,7 @@ const NewUserTeam = () => {
                 }
                 </tbody>
             </Table>
-            <button
-                className="btn btn-outline-secondary"
-                type="submit"
-                id="button-addon2">
-                Enviar
-            </button>
+            
         </div>
         
 
