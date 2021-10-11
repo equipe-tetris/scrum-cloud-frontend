@@ -1,0 +1,57 @@
+.container-register .box-form button {
+    margin-top: 15px;
+    width: 125px;
+}
+
+.container-register form {
+    height: 440px;
+    text-align: center;
+}
+
+.container-register form .form-floating {
+    margin: 15px;
+    width: 300px;
+}
+
+.container-register {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.container-register .box-form {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
+    padding: 35px 35px 20px 35px;
+    /*background-color: rgb(239, 248, 248);*/
+    margin-bottom: 25px;
+    height: 600px;
+}
+
+.container-register .box-form .avatar {
+    display: flex;
+    justify-content: center;
+}
+
+.container-register .box-form .avatar img{
+    max-width: 100px;
+    max-height: 100px;
+    margin-bottom: 15px;
+    border-radius: 30%;
+}
+
+.container-register .box-form p {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.container-register .box-form button {
+    margin-top: 10px;
+    width: 125px;
+}
+
+.container-register .label {
+    font-weight: bold;
+
+}
+

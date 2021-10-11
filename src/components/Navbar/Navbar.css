@@ -1,0 +1,22 @@
+.navbar-brand img {
+    height: 35px;
+    width: 35px;
+    margin-left: 10px;
+}
+
+.nav-link a :hover {
+    cursor: pointer;
+    color: rgb(156, 151, 151);
+}
+
+#navbarNav {
+    display: flex;
+    justify-content: center;
+}
+
+.logout {
+    margin-right: 0px !important;
+    font-size: 22px;
+}
+
+

@@ -1,91 +1,68 @@
-<div style = "text-align:center">
+# :desktop_computer: Sprint 2
 
-# Seja bem-vindo ao <img src="/assets/images/icon-scrumcloud.png">
+### :dart: Desenvolvimento da aplicação:
+- Permitir cadastro de Usuário :heavy_check_mark:
+- Permitir cadastro de Times de Desenvolvimento :heavy_check_mark:
+- Disparar e-mails com links para cadastramento :heavy_check_mark:
+- Permitir criar sala de reunião :heavy_check_mark:
+- Permitir incluir itens para votação em reuniões de Planning :heavy_check_mark:
+- Permitir definir métrica de votação :heavy_check_mark:
+- Permitir encerramento da votação de um item :heavy_check_mark:
+- Gerar sugestão de valor para o item em questão pós encerramento de votação dele para o S.M. :heavy_check_mark:
+- Permitir definição de um valor ao item com votação encerrada :heavy_check_mark:
 
-</div>
-<div style="text-align:center">
-
-### Olá! Somos a equipe Tetris responsáveis pelo desenvolvimento da aplicação web ScrumCloud.
-
-</div>
 <br>
 
-# ![trabalho-em-equipe](https://user-images.githubusercontent.com/81206214/120873313-f65cf780-c577-11eb-8ba2-15d1925c0e4b.png)   O Time 
-<div class="time" style= "text-align:justify">
-A equipe Tetris é composta pelos seguintes estudantes do 3º semestre de Banco de Dados pela FATEC de São José dos Campos: <br><br>
+### :camera: Screenshots 
+<div class="screenshots" style= "text-align:justify">
 
-- ***Product Owner***
-  - [Nágella Nasser](https://github.com/nagellanasser) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/nagellanasser/)  
-- ***Scrum Master***
-  - [Davi das Neves Machado](https://github.com/machadondavi) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/davinevesmachado/)
-- ***Team Dev :***
-  - [Alexia Karine Silva dos Santos](https://github.com/alexiakarine) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/alexia-karine-silva-5b0a79116/)
-  - [Gabriel Oliveira Sana](https://github.com/gabsana) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/gabriel-sana-ba91a4147/)
-  - [Guilherme Agostin](https://github.com/guitambau) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/guilherme-agostin-90ba6169/)
-  - [Guilherme de Oliveira Perfeito](https://github.com/guitambau) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/guilherme-perfeito-a76729168/)
-  - [Jefferson Tavares de Araújo](https://github.com/jefferson-tavares-araujo) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/jeffersontavaresaraujo/)
-  - [Renata Garcia Nonato](https://github.com/RenataGarciaNonato) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/mwlite/in/renata-garcia-2a84821b7)
-  - [Valdiney José do Nascimento](https://github.com/Valdineynascimento) [<center><img src="https://github.com/equipe-tetris/scrum-cloud-frontend/blob/main/assets/images/linkedin.png" /></center>](https://www.linkedin.com/in/valdiney-jos%C3%A9-do-nascimento-68a136214/)
-</div>
+- **01: Tela de Login** 
+![Tela_Login](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-login.jpeg "Tela de login do ScrumCloud ")
 <br><br>
 
-## :pushpin: Objetivo  
-Desenvolver uma aplicação web que permita equipes remotas de desenvolvimento realizarem as cerimônias de Planning e Retrospective aplicadas na metodologia SCRUM.
+- **02: Tela de Cadastro do Scrum Master**
+![Tela_Cadastro_SM](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-cadastro-sm.jpeg "Tela de Cadastro do Scrum Master")
+<br><br>
 
-Nossa aplicação permitirá o cadastro de membros de equipes, agendamento e realização (real-time) de reuniões com configuração de métricas customizáveis e exportação dos resumos para os integrantes das mesmas.
+- **03: Tela de Cadastro do Desenvolvedor**
+![Tela_Cadastro_DEV](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-cadastro-dev.jpeg "Tela de Cadastro do Desenvolvedor")
+<br><br>
+  
+- **04: Tela Inicial do Scrum Master**
+![Tela_Inicial_SM](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-home-sm.jpeg "Tela Inicial do Scrum Master")
+<br>
+  
+- ![Tela_Inicial_SM_2](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-home-sm-2.png "Tela Inicial do Scrum Master")  
+<br><br>
+
+- **05: Tela  de Cadastro do Time**
+![Tela_Cadastro_Time](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-cadastro-equipes.jpeg "Tela de Cadastro do Time")
+<br><br>
+  
+- **06: Tela de inclusão de destinatários para fazer parte do Time criado**
+![Tela_Times](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-time-sem-integrantes.jpeg "Tela de Times - add destinatários")
+<br><br>
+  
+- **07: Tela de Times com integrantes**
+![Tela_Times](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-time.jpeg "Tela de Times com integrantes")
+<br><br>
+
+- **08: Tela de Configuração da Sala de Planning**
+![Tela_Config_Planning](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-config-sala-planning.png "Tela de Configuração de Planning")
+<br><br>
+
+- ![Tela_Config_Planning_2](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/screenshots/sprint-2/tela-config-sala-planning-2.png "Tela de Configuração de Planning") 
+<br><br>
 </div>
+
 <br>
-
-## :dart: Público-alvo 
-<div class="publico-alvo" style= "text-align:justify">
-Equipes de Desenvolvimento praticantes de metodologias ágeis que utilizam cerimônias de Planning e Retrospective do framework Scrum em seus projetos. 
-</div>
-<br>
-
-## :computer: Tecnologias utilizadas 
-<div class="tecnologias" style= "text-align:justify">
-
-- Git
-- GitHub
-- IDE Intellij || Backend
-  - Linguagem de Programação: Java
-
-- IDE Vs Code || Frontend
-  - Linguagens:
-    - Marcação: HTML5
-    - Estilização: CSS3
-    - Programação: Javascript
-
-- BootStrap
-- ReactJS
-- Hibernate
-- Spring Framework
-- Banco de Dados: MySQL 
-
-</div>
-<br>
-
-## :pencil: Documentação
-
-- [Requisitos Funcionais](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/documentacao/Requisitos-Funcionais.md)
-- [Funcionalidades em desenvolvimento na aplicação](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/documentacao/Funcionalidades.md)
-- [Estórias de Usuário](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/userstories/User-Stories.md)
-- [Product Backlog](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/product-backlog/Product-Backlog.md)
-- [Prototipação](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/wireframes/Wireframes.md)
-- [Modelo Conceitual do Banco de Dados](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/MER.jpeg)
-- [Sprint planning](https://github.com/equipe-tetris/scrum-cloud-backend/blob/master/resource/images/SprintReleasePlan.PNG)
-<br>
-
-## :calendar: Sprints
-
-| Data  | Entregas |
-| ------------- |:-------------:|
-| 08/09 a 19/09/2021      | [Sprint 1](https://github.com/equipe-tetris/scrum-cloud-backend/blob/sprint-1/README.md)     |
-| 20/09 a 10/10/2021      | [Sprint 2](https://github.com/equipe-tetris/scrum-cloud-backend/blob/sprint-2/README.md)     |
-| 18/10 a 07/11/2021      | Sprint 3     |
-| 08/11 a 28/11/2021      | Sprint 4     |
 
 <!--
-| 18/10 a 07/11/2021      | [Sprint 3](https://github.com/equipe-tetris/scrum-cloud-backend/blob/sprint-3/README.md)     |
-| 08/11 a 28/11/2021      | [Sprint 4](https://github.com/equipe-tetris/scrum-cloud-backend/blob/sprint-4/README.md)     |
+### :bar_chart: Apresentação: 
+- SPRINT-2 .:: [Clique aqui](<incluir_link>) ::.
+<br>
+
+### :chart_with_upwards_trend: Retrospectiva:
+![Retrospectiva](<incluir_link> "Retrospectiva-2") 
 -->
+

@@ -1,0 +1,44 @@
+.container-login form {
+    height: 250px;
+    text-align: center;
+}
+
+.container-login form .form-floating {
+    margin: 15px;
+    width: 300px;
+}
+
+.container-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.container-login .box-form {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
+    height: 550px;
+    padding: 35px 35px 20px 35px;
+}
+
+.container-login .box-form .logo {
+    display: flex;
+    justify-content: center;
+}
+
+.container-login .box-form .logo img{
+    max-width: 100px;
+    max-height: 100px;
+    margin-bottom: 15px;
+}
+
+.container-login .box-form p {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.container-login .box-form button {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 125px;
+}

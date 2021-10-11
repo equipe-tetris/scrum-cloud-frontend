@@ -1,0 +1,31 @@
+.container-team-page {
+    margin-left: 25px;
+    margin-top: 80px;
+    display: flex;
+}
+
+.container-team-page .box-link {
+    margin-left: 250px;
+    margin-top: 80px;
+    width: 360px;
+}
+
+.container-user {
+    width: 700px;
+    margin-left: 25%;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .14);
+    margin-top: 50px;
+}
+
+.container-user .title {
+    text-align: center;
+    margin: 20px;
+}
+
+.container-user span {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 25px;
+}
+
