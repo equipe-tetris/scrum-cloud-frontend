@@ -14,11 +14,14 @@ import {
   ListItemText,
   Input,
   Menu,
+  Autocomplete,
+  TextField,
 } from '@mui/material'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import BeenhereIcon from '@mui/icons-material/Beenhere'
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
+import DoneIcon from '@mui/icons-material/Done';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 
@@ -37,6 +40,9 @@ import {
 import API from '../../config/api'
 
 import { authService } from '../../services/auth.service'
+import { teamService } from '../../services/team.service'
+import { planningService } from '../../services/planning.service'
+import { SalaPlanning } from '../../models/SalaPlanning'
 
 const useStyles = {
   root: {
@@ -62,10 +68,45 @@ const useStyles = {
 }
 
 function ConfigurationPlanningPoker() {
+
+  const userLogged = authService.getDataLoggedUser();
+
   const [QuantidadeHistoria, setQuantidadeHistoria] = React.useState(1)
   const [Historias, setHistorias] = React.useState('')
+  const [equipesItemCombo, setEquipesItemCombo] = React.useState([]);
 
   const [SessionList, setSessionList] = React.useState([])
+
+  const [nomeSala, setNomeSala] = React.useState('');
+  const [scrumMaster, setScrumMaster] = React.useState(userLogged.id);
+  const [metricaSala, setMetricaSala] = React.useState('');
+  const [equipe, setEquipe] = React.useState(0);
+
+  const criarSalaPlanning = () => {
+      const salaPlanning = {
+        nome: nomeSala,
+        scrumMaster: scrumMaster,
+        metricaSala: metricaSala,
+        equipe: equipe
+      }
+
+      try {
+        const res = planningService.cadastrarSalaPlanning(salaPlanning);
+
+        if(res) {
+          console.log('Sucess!')
+        }
+
+        setNomeSala('');
+        setMetricaSala('');
+        setEquipe(0);
+
+      } catch(e) {
+        console.log(e)
+      }
+  }
+
+
 
   const handleUserKeyPress = useCallback((
     event,
@@ -85,6 +126,26 @@ function ConfigurationPlanningPoker() {
     }
   }, [])
 
+  const buscarEquipesComboBox = async() => {
+    try {
+      
+      const res = await teamService.buscarEquipesComboBoxPorUsuario(userLogged.id);
+
+      setEquipesItemCombo(res.data);
+
+     
+  } catch(e) {
+     console.log(e); }
+  }
+
+  const removeTask = (index: number) => {
+    const listAux = [...SessionList];
+
+    listAux.splice(index, 1);
+
+    setSessionList(listAux);
+  }
+
   useEffect(() =>
     {
       console.log(QuantidadeHistoria)
@@ -98,6 +159,10 @@ function ConfigurationPlanningPoker() {
       if (i) i.removeEventListener('keydown', handleUserKeyPress)
     }
   }, [handleUserKeyPress])
+
+  useEffect(() => {
+    buscarEquipesComboBox();
+  }, [])
 
   function ConverterCards() {
     console.log(SessionList)
@@ -155,9 +220,16 @@ function ConfigurationPlanningPoker() {
                 flexDirection: 'row',
               }}
             >
-              <Input
-                disableUnderline={true}
-                placeholder="Nome do time"
+             
+              <Autocomplete
+                disablePortal
+                id="combo-box-demo"
+                options={equipesItemCombo}
+                onChange={(event: any, value) => setEquipe(value?.id)}
+                renderInput={(params) => 
+                  <TextField {...params} label="Suas equipes"
+                    
+                 />}
                 style={{
                   backgroundColor: '#F7F7FC',
                   display: 'flex',
@@ -180,7 +252,7 @@ function ConfigurationPlanningPoker() {
               fontFamily="Segoe UI"
               style={{ color: '#20C0C8', fontWeight: 600 }}
             >
-              Escolha a técnica para aplicar no plannig poker
+              Escolha a técnica para aplicar no planning poker
             </Typography>
 
             <div
@@ -191,14 +263,14 @@ function ConfigurationPlanningPoker() {
                 flexDirection: 'row',
               }}
             >
-              <Checkbox color="primary" />
+              <Checkbox color="primary" value="PADRAO" onChange={event => setMetricaSala(event.target.value)}/>
 
               <Typography
                 align="center"
                 fontFamily="Segoe UI"
                 style={{ color: '#707771', fontWeight: 'bold' }}
               >
-                Tempo ( 1h, 2h, 4h, 1d, 2d, 3d, 4d, 1sem, ?, Passa, Para )
+                Padrão ( 0, ½, 1, 2,3,5,8,13,20,40,100, infinito, ?, café )
               </Typography>
             </div>
 
@@ -210,15 +282,15 @@ function ConfigurationPlanningPoker() {
                 flexDirection: 'row',
               }}
             >
-              <Checkbox color="primary" />
+              <Checkbox color="primary" value="FIBONACCI" onChange={event => setMetricaSala(event.target.value)}/>
 
               <Typography
                 align="center"
                 fontFamily="Segoe UI"
                 style={{ color: '#707771', fontWeight: 'bold' }}
               >
-                Fibonacci ( 0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ?, Pass,
-                Para)
+                Fibonacci ( 0,1, 1, 2, 3, 5, 8, 13, 21, 
+                  34, 55, 89, infinito, ?, café)
               </Typography>
             </div>
 
@@ -230,14 +302,14 @@ function ConfigurationPlanningPoker() {
                 flexDirection: 'row',
               }}
             >
-              <Checkbox color="primary" />
+              <Checkbox color="primary" value="RELATIVA" onChange={event => setMetricaSala(event.target.value)}/>
 
               <Typography
                 align="center"
                 fontFamily="Segoe UI"
                 style={{ color: '#707771', fontWeight: 'bold' }}
               >
-                Voto ( Sim, Espera, Não)
+                Relativa ( XL, X, M, P )
               </Typography>
             </div>
           </Card>
@@ -254,7 +326,7 @@ function ConfigurationPlanningPoker() {
               fontFamily="Segoe UI"
               style={{ color: '#20C0C8', fontWeight: 600 }}
             >
-              Escolha um nome para o plannig poker
+              Escolha um nome para sua sala de planning poker
             </Typography>
 
             <div
@@ -277,6 +349,8 @@ function ConfigurationPlanningPoker() {
                 }
                 disableUnderline={true}
                 placeholder="Task"
+                value={nomeSala}
+                onChange={event => setNomeSala(event.target.value)}
                 style={{
                   backgroundColor: '#F7F7FC',
                   display: 'flex',
@@ -301,7 +375,7 @@ function ConfigurationPlanningPoker() {
               fontFamily="Segoe UI"
               style={{ color: '#20C0C8', fontWeight: 600 }}
             >
-              Crie as listas do plannig poker
+              Crie as listas do planning poker
             </Typography>
 
             <div
@@ -354,7 +428,7 @@ function ConfigurationPlanningPoker() {
                 textTransform: 'none',
                 boxShadow: 'none',
                 fontSize: '20px',
-                width: '30%',
+                width: '20%',
               }}
               onClick={() => ConverterCards()}
             >
@@ -387,7 +461,8 @@ function ConfigurationPlanningPoker() {
                     </Typography>
 
                     <HighlightOffIcon
-                      style={{ marginLeft: '5%' }}
+                      style={{ marginLeft: '5%', cursor: 'pointer' }}
+                      onClick={() => removeTask(index)}
                     ></HighlightOffIcon>
                   </Card>
                 )
@@ -395,6 +470,35 @@ function ConfigurationPlanningPoker() {
           </Card>
         </CardContent>
         <CardActions></CardActions>
+
+        <div style={{display: 'flex', justifyContent: 'center'}}>
+
+            <Button
+              //disabled={ DisableButton }
+              type="submit"
+              fullWidth
+              variant="contained"
+              startIcon={<DoneIcon />}
+              style={{
+                marginTop: '1%',
+                marginBottom: '1%',
+                display: 'flex',
+                border: '1px solid',
+                borderColor: '#0d6efd',
+                backgroundColor: '#fff',
+                color: '#0d6efd',
+                fontFamily: 'Segoe UI',
+                textTransform: 'none',
+                boxShadow: 'none',
+                fontSize: '20px',
+                width: '20%',
+              }}
+              onClick={() => criarSalaPlanning()}
+            >
+              Criar sala{' '}
+            </Button>
+
+            </div>
       </div>
     </div>
   )

@@ -52,9 +52,9 @@ function Home() {
                
                 <div className="box-new-team">
                     <div 
-                    //    onClick={() => setModalShow(true)}
-                       onClick={() => GotoNextPage()}  
-                       className="new-team"><i className="fas fa-plus"></i></div>
+                       onClick={() => setModalShow(true)} 
+                       className="new-team"><i className="fas fa-plus"></i>
+                    </div>
                 </div>
             </div>
             <p className="dashboard-title">Suas salas de Planning Poker</p>
@@ -62,7 +62,7 @@ function Home() {
             <div className="teams-cards">
                 <TeamCard />
                 <div className="box-new-team">
-                    <div onClick={() => setModalShow(true)} className="new-team"><i className="fas fa-plus"></i></div>
+                    <div onClick={() => GotoNextPage()} className="new-team"><i className="fas fa-plus"></i></div>
                 </div>
             </div>
             <p className="dashboard-title">Suas salas de Retrospective</p>

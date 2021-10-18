@@ -22,6 +22,11 @@ export const teamService = {
     async buscarTimePorId(id: number) {
         const endpoint = `${apiUrl}/buscarPorId/${id}`
         return axios.get(endpoint);
+    },
+
+    async buscarEquipesComboBoxPorUsuario(id: number) {
+        const endpoint = `${apiUrl}/buscarEquipesComboBoxPorUsuario/${id}`
+        return axios.get(endpoint);
     }
 
 
