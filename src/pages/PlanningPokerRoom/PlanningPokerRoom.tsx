@@ -22,6 +22,7 @@ import {
   Grid,
   Link,
 } from '@mui/material'
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 import { createTheme } from '@mui/material/styles'
 import { styled } from '@mui/material/styles'
@@ -39,6 +40,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ShareIcon from '@mui/icons-material/Share'
 import ControlPointIcon from '@mui/icons-material/ControlPoint'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 import './PlanningPokerRoom.css'
 import { FormatDate } from '../../utils/DateUtil'
@@ -54,7 +56,7 @@ import { authService } from '../../services/auth.service'
 import { teamService } from '../../services/team.service'
 import { planningService } from '../../services/planning.service'
 import { SalaPlanning } from '../../models/SalaPlanning'
-import { border } from '@mui/system'
+import { border, width } from '@mui/system'
 
 const useStyles = {
   root: {
@@ -145,6 +147,21 @@ function PlanningPokerRoom() {
     setVote('Votação finalizada')
     setColorVote('#F70000')
     setChecked(true)
+  }
+
+  var crypto = require('crypto')
+  var id = crypto.randomBytes(5).toString('hex')
+
+  function copySomething() {
+    try {
+      console.log("copiado")
+      const toCopy = id;
+       navigator.clipboard.writeText(toCopy);
+      console.log('Text or Page URL copied');
+    }
+    catch (err) {
+      console.error('Failed to copy: ', err);
+    }
   }
 
   function handleFocusItem(Case) {
@@ -561,11 +578,13 @@ function PlanningPokerRoom() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      width: '33.33%',
+                      width: '33.34%',
                       flexDirection: 'row',
                       padding: '1.5%',
                       boxShadow: 'none',
-                      border: '1px solid'.concat(Colors.LigthGray),
+                      border:
+                        !!FocusItemStory &&
+                        '1px solid'.concat(Colors.LigthGray),
                       borderBottom: !!FocusItemStory
                         ? 'none'
                         : '1px solid'.concat(Colors.LigthGray),
@@ -593,11 +612,13 @@ function PlanningPokerRoom() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      width: '33.33%',
+                      width: '33.34%',
                       flexDirection: 'row',
                       padding: '1.5%',
                       boxShadow: 'none',
-                      border: '1px solid'.concat(Colors.LigthGray),
+                      border:
+                        !!FocusItemUsers &&
+                        '1px solid'.concat(Colors.LigthGray),
                       borderBottom: !!FocusItemUsers
                         ? 'none'
                         : '1px solid'.concat(Colors.LigthGray),
@@ -624,11 +645,13 @@ function PlanningPokerRoom() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      width: '33.33%',
+                      width: '33.34%',
                       flexDirection: 'row',
                       padding: '1.5%',
                       boxShadow: 'none',
-                      border: '1px solid'.concat(Colors.LigthGray),
+                      border:
+                        !!FocusItemShare &&
+                        '1px solid'.concat(Colors.LigthGray),
                       borderBottom: !!FocusItemShare
                         ? 'none'
                         : '1px solid'.concat(Colors.LigthGray),
@@ -662,28 +685,87 @@ function PlanningPokerRoom() {
                   }}
                 >
                   <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    {!!FocusItemStory ? 
-                    <div style={{ display: 'flex', flexDirection: 'row'}}>
-                      { !!FocusItemAddNewStory &&
-                      <TextField
-                      value={NewStory}
-                        onMouseLeave={() => handleFocusItem(5)}
-                        onChange={(e) => setNewStory(e.target.value)}
-                        size="small"
-                        style={{width: '100%'}}
-                      ></TextField>
-                    }
-                    <div>
-                    <IconButton
-                      color="primary"
-                      onMouseEnter={() => handleFocusItem(4)}
-                      style={{ justifyContent: 'center', width: '10%', marginLeft: '80%'}}
-                    >
-                      <ControlPointIcon />
-                    </IconButton></div></div> : null}
+                    {!!FocusItemStory ? (
+                      <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        {!!FocusItemAddNewStory && (
+                          <div
+                            style={{ display: 'flex', alignItems: 'center' }}
+                          >
+                            <Input
+                              value={NewStory}
+                              onMouseLeave={() => handleFocusItem(5)}
+                              onChange={(e) => setNewStory(e.target.value)}
+                              size="small"
+                              style={{
+                                width: '100%',
+                                height: '20px',
+                                border: '1px solid'.concat(Colors.LigthGray),
+                                padding: '7%',
+                              }}
+                            ></Input>
+                          </div>
+                        )}
+                        <div onMouseEnter={() => handleFocusItem(4)}>
+                          <IconButton
+                            color="primary"
+                            style={{
+                              justifyContent: 'center',
+                              width: '10%',
+                              marginLeft: '80%',
+                            }}
+                          >
+                            <ControlPointIcon />
+                          </IconButton>
+                        </div>
+                      </div>
+                    ) : null}
 
-                    {!!FocusItemUsers && <p style={{fontFamily: 'Segoe UI'}}>Aparecer o nome de quem esta logado</p>}
-                    
+                    {!!FocusItemUsers && (
+                      <p style={{ fontFamily: 'Segoe UI' }}>
+                        Aparecer o nome de quem esta logado
+                      </p>
+                    )}
+
+                    {!!FocusItemShare && (
+                      <Card
+                        style={{
+                          display: 'flex',
+                          fontFamily: 'Segoe UI',
+                          width: '100%',
+                          justifyContent: 'space-between',
+                          flexDirection: 'row',
+                          boxShadow: 'none',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '35%',
+                            padding: '1%',
+                            backgroundColor: Colors.LigthGray,
+                          }}
+                        >
+                          <Typography style={{ fontSize: '14px' }}>
+                            Compartilhar sessão
+                          </Typography>
+                        </div>
+                        <div style={{ display: 'flex', width: '35%', justifyContent: 'center'}}>
+                          <Typography style={{ fontSize: '14px' }}>
+                            {id}
+                          </Typography>
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            width: '30%',
+                            padding: '1%',
+                            backgroundColor: Colors.LigthGray,
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <ContentCopyIcon onClick={() => copySomething()}/>
+                        </div>
+                      </Card>
+                    )}
                   </div>
                 </div>
               </Grid>
