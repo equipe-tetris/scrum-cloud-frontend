@@ -6,7 +6,11 @@ export const Colors = {
     Blue:'#0000F2',
     Black:'#000', 
     Gray:'#8B8B8B',
-    LigthGray:'#B8B9B9'
+    LigthGray:'#B8B9B9',
+    Orange: '#D65304',
+    LightBlue:'#3FABDA',
+    LigthGray: '#bfbfbf',
+
 };
 
 

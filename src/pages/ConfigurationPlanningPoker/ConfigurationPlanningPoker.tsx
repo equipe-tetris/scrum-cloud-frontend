@@ -78,14 +78,17 @@ function ConfigurationPlanningPoker() {
   const [SessionList, setSessionList] = React.useState([])
 
   const [nomeSala, setNomeSala] = React.useState('');
-  const [scrumMaster, setScrumMaster] = React.useState(userLogged.id);
+  // const [scrumMaster, setScrumMaster] = React.useState(userLogged.id);
   const [metricaSala, setMetricaSala] = React.useState('');
   const [equipe, setEquipe] = React.useState(0);
+  const history = useHistory();
 
   const criarSalaPlanning = () => {
+   
+    history.push( "/planningpokerroom" );
       const salaPlanning = {
         nome: nomeSala,
-        scrumMaster: scrumMaster,
+        // scrumMaster: scrumMaster,
         metricaSala: metricaSala,
         equipe: equipe
       }

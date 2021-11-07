@@ -9,7 +9,7 @@ import Register from '../pages/Register/Register';
 import RegisterDev from '../pages/RegisterDev/RegisterDev';
 import TeamPage from '../pages/TeamPage/TeamPage';
 import ConfigurationPlanningPoker from '../pages/ConfigurationPlanningPoker/ConfigurationPlanningPoker';
-
+import PlanningPokerRoom from '../pages/PlanningPokerRoom/PlanningPokerRoom';
 
 const Routes = () => {
     return( 
@@ -20,6 +20,7 @@ const Routes = () => {
                 <Route path="/recuperar-senha" component={RecuperarSenha} />
                 <Route path="/home/dashboard" component={Home} />
                 <Route path="/configurationroom" component={ConfigurationPlanningPoker} />
+                <Route path="/planningpokerroom" component={PlanningPokerRoom} />
                 <Route path="/time/:id" exact component={TeamPage} />
                 <Route path="/cadastro-dev/:id" component={RegisterDev} />
             </Switch>
