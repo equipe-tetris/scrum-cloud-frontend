@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, Fragment } from 'react'
 import {
   Card,
   SvgIcon,
@@ -21,8 +21,10 @@ import {
   Divider,
   Grid,
   Link,
+  Tooltip,
 } from '@mui/material'
-import { CopyToClipboard } from "react-copy-to-clipboard";
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useHistory } from 'react-router-dom'
 
 import { createTheme } from '@mui/material/styles'
 import { styled } from '@mui/material/styles'
@@ -41,15 +43,14 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import ShareIcon from '@mui/icons-material/Share'
 import ControlPointIcon from '@mui/icons-material/ControlPoint'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import FlagIcon from '@mui/icons-material/Flag' // current history
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined'
 
 import './PlanningPokerRoom.css'
 import { FormatDate } from '../../utils/DateUtil'
 import { Colors } from '../../constants/Colors'
 
 import Logo from '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
-
-import { Redirect, useLocation, Route, useHistory } from 'react-router-dom'
-
 import API from '../../config/api'
 
 import { authService } from '../../services/auth.service'
@@ -57,6 +58,7 @@ import { teamService } from '../../services/team.service'
 import { planningService } from '../../services/planning.service'
 import { SalaPlanning } from '../../models/SalaPlanning'
 import { border, width } from '@mui/system'
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants'
 
 const useStyles = {
   root: {
@@ -101,8 +103,19 @@ function PlanningPokerRoom() {
   const [FocusItemUsers, setFocusItemUsers] = React.useState(false)
   const [FocusItemShare, setFocusItemShare] = React.useState(false)
   const [FocusItemAddNewStory, setFocusItemAddNewStory] = React.useState(false)
+  const [TextTooltip, setTextTooltip] = React.useState('Copiar texto')
+  const [ClipboardText, setClipboardText] = React.useState(null)
+  const [CriptoText, setCriptoText] = React.useState('')
   const [NewStory, setNewStory] = React.useState('')
+  const [CurrentClipboardText, setCurrentClipboardText] = React.useState('')
+  const [CheckedEndHistory, setCheckedEndHistory] = React.useState(false)
+  const [HistoryList, setHistoryList] = React.useState([])
+  const [SelectedCard, setSelectedCard] = React.useState({})
 
+  const history = useHistory()
+  let crypto = require('crypto')
+
+  //opções que virão da api de acordo com a técnica aplicada na criação da sala
   const CardsList = [
     { index: 0, name: 'Card 1' },
     { index: 1, name: 'Card 2' },
@@ -118,6 +131,13 @@ function PlanningPokerRoom() {
     { index: 11, name: 'Card 12' },
     { index: 12, name: 'Card 13' },
     { index: 13, name: 'Card 14' },
+  ]
+
+  //cards selecionados pelos participantes da sala
+  const CardSelect = [
+    { index: 0, name: 'Card 1' },
+    { index: 1, name: 'Card 2' },
+    { index: 2, name: 'Card 3' },
   ]
 
   const criarSalaPlanning = () => {
@@ -149,18 +169,31 @@ function PlanningPokerRoom() {
     setChecked(true)
   }
 
-  var crypto = require('crypto')
-  var id = crypto.randomBytes(5).toString('hex')
+  const handleChangeShowEndedStorys = (event) => {
+    setCheckedEndHistory(true)
+  }
+
+  async function getClipBoard() {
+    navigator.clipboard.readText().then((t) => {
+      setCurrentClipboardText(t)
+    })
+  }
+
+  function getCodeSession() {
+    let code = crypto.randomBytes(5).toString('hex')
+    setCriptoText(code)
+  }
 
   function copySomething() {
+    setTextTooltip('Texto copiado')
     try {
-      console.log("copiado")
-      const toCopy = id;
-       navigator.clipboard.writeText(toCopy);
-      console.log('Text or Page URL copied');
-    }
-    catch (err) {
-      console.error('Failed to copy: ', err);
+      const toCopy = CriptoText
+      navigator.clipboard.writeText(toCopy)
+      // console.log(id)
+    } catch (err) {
+      console.error('Failed to copy: ', err)
+    } finally {
+      getClipBoard()
     }
   }
 
@@ -178,13 +211,6 @@ function PlanningPokerRoom() {
         setFocusItemShare(false)
         break
 
-      // case 3:
-      //   // setFocusItemConfig(true)
-      //   setFocusItemStory(false)
-      //   setFocusItemUsers(false)
-      //   setFocusItemShare(false)
-      //   break
-
       case 3:
         setFocusItemShare(true)
         setFocusItemStory(false)
@@ -199,6 +225,12 @@ function PlanningPokerRoom() {
         setFocusItemAddNewStory(false)
         break
     }
+  }
+
+  function handleSelectedCard(isc, sc) {
+    // let result = Object.create(isc + sc)
+    let result = { index: isc, content: sc }
+    setSelectedCard(result)
   }
 
   const handleUserKeyPress = useCallback((event) => {
@@ -220,12 +252,13 @@ function PlanningPokerRoom() {
   const buscarEquipesComboBox = async () => {
     try {
       const res = await teamService.buscarEquipesComboBoxPorUsuario(
-        userLogged.id,
+        // userLogged.id,
+        userLogged,
       )
 
       setEquipesItemCombo(res.data)
     } catch (e) {
-      console.log(e)
+      // console.log(e)
     }
   }
 
@@ -237,17 +270,19 @@ function PlanningPokerRoom() {
     setSessionList(listAux)
   }
 
-  // useEffect(() => {
-  //   console.log(QuantidadeHistoria)
-  // }, [QuantidadeHistoria])
+  useEffect(() => {
+    Mount()
+  }, [])
 
   useEffect(() => {
-    console.log(FocusItemStory)
-  }, [FocusItemStory])
+    console.log({ TextTooltip, CriptoText, CurrentClipboardText })
 
-  // useEffect(() => {
-  //   console.log(checked)
-  // }, [checked])
+    if (CurrentClipboardText !== CriptoText) {
+      setTextTooltip('Copiar texto')
+    } else {
+      setTextTooltip('Texto copiado')
+    }
+  }, [TextTooltip, CriptoText, CurrentClipboardText])
 
   useEffect(() => {
     let i = document.getElementById('myInput')
@@ -262,12 +297,20 @@ function PlanningPokerRoom() {
     buscarEquipesComboBox()
   }, [])
 
-  function ConverterCards() {
-    console.log(SessionList)
-    if (!!Historias && Historias.length > 0) {
-      let a = Historias.split(/\r\n|\r|\n/)
-      setSessionList(a)
-    }
+  useEffect(() => {
+    console.log(SelectedCard)
+  }, [SelectedCard])
+
+  // function ConverterCards() {
+  //   console.log(SessionList)
+  //   if (!!Historias && Historias.length > 0) {
+  //     let a = Historias.split(/\r\n|\r|\n/)
+  //     setSessionList(a)
+  //   }
+  // }
+
+  async function Mount() {
+    await Promise.all([getCodeSession(), getClipBoard()])
   }
 
   return (
@@ -304,7 +347,7 @@ function PlanningPokerRoom() {
               >
                 Nome do usuário | Logout{' '}
               </Typography>
-              <ExitToAppIcon></ExitToAppIcon>
+              <ExitToAppIcon onClick={() => history.push('/')}></ExitToAppIcon>
             </div>
           </div>
           <Card
@@ -350,7 +393,7 @@ function PlanningPokerRoom() {
                   style={{
                     width: '100%',
                     fontFamily: 'Segoe UI',
-                    marginLeft: '2%',
+                    margin: '0 0 2% 2%',
                     fontWeight: 'bold',
                   }}
                 >
@@ -367,7 +410,9 @@ function PlanningPokerRoom() {
                     border: '1px solid #000000',
                   }}
                 >
-                  Nenhum card selecionado
+                  {Object.values(SelectedCard).toString().slice(2).length <= 6
+                    ? Object.values(SelectedCard).toString().slice(2)
+                    : Object.values(SelectedCard).toString().slice(3)}
                   <Card
                     style={{
                       marginTop: '70%',
@@ -382,13 +427,15 @@ function PlanningPokerRoom() {
                   style={{
                     width: '100%',
                     fontFamily: 'Segoe UI',
-                    marginLeft: '2%',
+                    margin: '2% 0 0 2%',
                     fontWeight: 'bold',
                   }}
                 >
-                  Selecione um card
+                  {!!checked ? '' : 'Selecione um card' }
+                  
                 </Divider>
 
+                {!checked && 
                 <div
                   style={{
                     display: 'flex',
@@ -401,6 +448,9 @@ function PlanningPokerRoom() {
                   {CardsList.map((item, index) => (
                     <>
                       <Card
+                        onClick={(e) =>
+                          handleSelectedCard(index, e.currentTarget.innerText)
+                        }
                         style={{
                           display: 'flex',
                           flex: 1,
@@ -410,41 +460,31 @@ function PlanningPokerRoom() {
                         <Typography
                           style={{ padding: '.5%', textAlign: 'center' }}
                         >
-                          {' '}
-                          {item.name}{' '}
+                          {item.name}
                         </Typography>
                       </Card>
-                      {index === 1 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 3 && (
+                      {index === 2 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )}
                       {index === 5 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )}
-                      {index === 7 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 9 && (
+                      {index === 8 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )}
                       {index === 11 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )}
-
-                      {/* {index === 3 && (
-                      <div style={{ flexBasis: '100%', height: 0 }}></div>
-                    )}
-                     {index === 7 && (
-                      <div style={{ flexBasis: '100%', height: 0 }}></div>
-                    )}
-                     {index === 11 && (
-                      <div style={{ flexBasis: '100%', height: 0 }}></div>
-                    )} */}
+                      {/* {index === 10 && (
+                        <div style={{ flexBasis: '100%', height: 0 }}></div>
+                      )}
+                      {index === 11 && (
+                        <div style={{ flexBasis: '100%', height: 0 }}></div>
+                      )} */}
                     </>
                   ))}
                 </div>
+                }
                 {/* </div> */}
               </Grid>
               <Grid item xs={5}>
@@ -676,7 +716,7 @@ function PlanningPokerRoom() {
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    // justifyContent: 'space-between',
+                    justifyContent: 'space-between',
                     margin: '0 20px 5% 3%',
                     flex: 1,
                     border: '1px solid'.concat(Colors.LigthGray),
@@ -684,89 +724,297 @@ function PlanningPokerRoom() {
                     padding: '2%',
                   }}
                 >
-                  <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    {!!FocusItemStory ? (
-                      <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        {!!FocusItemAddNewStory && (
-                          <div
-                            style={{ display: 'flex', alignItems: 'center' }}
+                  {!!FocusItemStory ? (
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {!!FocusItemAddNewStory ? (
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Input
+                            placeholder="Nome da história"
+                            value={NewStory}
+                            onMouseLeave={() => handleFocusItem(5)}
+                            onChange={(e) => setNewStory(e.target.value)}
+                            size="small"
+                            style={{
+                              fontSize: '14px',
+                              fontFamily: 'Segoe UI',
+                              width: '50%',
+                              height: '20px',
+                              border: '1px solid'.concat(Colors.LigthGray),
+                              padding: '3%',
+                              borderRadius: '5px',
+                            }}
+                          ></Input>
+                          <IconButton
+                            color="primary"
+                            style={{
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              width: '10%',
+                            }}
                           >
-                            <Input
-                              value={NewStory}
-                              onMouseLeave={() => handleFocusItem(5)}
-                              onChange={(e) => setNewStory(e.target.value)}
-                              size="small"
-                              style={{
-                                width: '100%',
-                                height: '20px',
-                                border: '1px solid'.concat(Colors.LigthGray),
-                                padding: '7%',
-                              }}
-                            ></Input>
-                          </div>
-                        )}
-                        <div onMouseEnter={() => handleFocusItem(4)}>
+                            <ControlPointIcon
+                              style={{ width: '30px', height: '30px' }}
+                              // onMouseEnter={() => handleFocusItem(4)} adicionar a lista de historias
+                            />
+                          </IconButton>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            width: '100%',
+                            marginLeft: '10%',
+                          }}
+                        >
+                          {!checked &&
                           <IconButton
                             color="primary"
                             style={{
                               justifyContent: 'center',
                               width: '10%',
-                              marginLeft: '80%',
                             }}
                           >
-                            <ControlPointIcon />
+                            <ControlPointIcon
+                              style={{ width: '30px', height: '30px' }}
+                              onMouseEnter={() => handleFocusItem(4)}
+                            />
                           </IconButton>
+                          }
                         </div>
-                      </div>
-                    ) : null}
+                      )}
 
-                    {!!FocusItemUsers && (
-                      <p style={{ fontFamily: 'Segoe UI' }}>
-                        Aparecer o nome de quem esta logado
-                      </p>
-                    )}
-
-                    {!!FocusItemShare && (
-                      <Card
+                      <div
                         style={{
                           display: 'flex',
-                          fontFamily: 'Segoe UI',
+                          alignItems: 'center',
                           width: '100%',
-                          justifyContent: 'space-between',
-                          flexDirection: 'row',
-                          boxShadow: 'none',
+                          justifyContent: 'flex-end',
+                          margin: '1%',
                         }}
                       >
-                        <div
+                        <Switch
+                          checked={CheckedEndHistory}
+                          onChange={handleChangeShowEndedStorys}
+                          color="primary"
+                        ></Switch>
+                        <Typography
                           style={{
-                            width: '35%',
-                            padding: '1%',
-                            backgroundColor: Colors.LigthGray,
+                            fontWeight: 'bold',
+                            fontSize: '13px',
+                            fontFamily: 'Segoe UI',
                           }}
                         >
-                          <Typography style={{ fontSize: '14px' }}>
-                            Compartilhar sessão
-                          </Typography>
-                        </div>
-                        <div style={{ display: 'flex', width: '35%', justifyContent: 'center'}}>
-                          <Typography style={{ fontSize: '14px' }}>
-                            {id}
-                          </Typography>
-                        </div>
+                          Mostrar histórias finalizadas
+                        </Typography>
+                      </div>
+
+                      <Card>
                         <div
                           style={{
-                            display: 'flex',
-                            width: '30%',
-                            padding: '1%',
                             backgroundColor: Colors.LigthGray,
-                            justifyContent: 'center',
+                            padding: '10px',
                           }}
                         >
-                          <ContentCopyIcon onClick={() => copySomething()}/>
+                          <Grid container spacing={3}>
+                            <Grid
+                              id="status"
+                              item
+                              xs={3}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                Status
+                              </Typography>
+                            </Grid>
+                            <Grid
+                              id="index"
+                              item
+                              xs={1}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                #
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={5}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                Nome
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                Ações
+                              </Typography>
+                            </Grid>
+                          </Grid>
                         </div>
+
+                        <Fragment>
+                          <Grid
+                            container
+                            spacing={3}
+                            style={{ padding: '10px', alignItems: 'center' }}
+                          >
+                            <Grid
+                              id="status"
+                              item
+                              xs={3}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <FlagIcon
+                                style={{ color: Colors.Green }}
+                              ></FlagIcon>
+                            </Grid>
+                            <Grid
+                              id="index"
+                              item
+                              xs={1}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                }}
+                              >
+                                1
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={5}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                }}
+                              >
+                                Nome da história
+                              </Typography>
+                            </Grid>
+                            <Grid
+                              item
+                              xs={3}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'left',
+                              }}
+                            >
+                              <HighlightOffIcon
+                                style={{ color: Colors.Red }}
+                              ></HighlightOffIcon>
+                            </Grid>
+                          </Grid>
+                        </Fragment>
                       </Card>
-                    )}
-                  </div>
+                    </div>
+                  ) : null}
+
+                  {!!FocusItemUsers && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Typography style={{ fontFamily: 'Segoe UI' }}>
+                        Aparecer o nome de quem esta logado
+                      </Typography>
+                    </div>
+                  )}
+
+                  {!!FocusItemShare && (
+                    <Card
+                      style={{
+                        display: 'flex',
+                        fontFamily: 'Segoe UI',
+                        width: '100%',
+                        justifyContent: 'space-between',
+                        flexDirection: 'row',
+                        boxShadow: 'none',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '35%',
+                          padding: '1%',
+                          fontFamily: 'Segoe UI',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: Colors.LigthGray,
+                        }}
+                      >
+                        <Typography
+                          style={{ fontSize: '13px', fontWeight: 'bold' }}
+                        >
+                          Compartilhar sessão
+                        </Typography>
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '35%',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography style={{ fontSize: '14px' }}>
+                          {CriptoText}
+                        </Typography>
+                      </div>
+                      <div
+                        onMouseEnter={() => getClipBoard()}
+                        style={{
+                          display: 'flex',
+                          width: '30%',
+                          padding: '1%',
+                          backgroundColor: Colors.LigthGray,
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Tooltip title={TextTooltip}>
+                          <ContentCopyIcon onClick={() => copySomething()} />
+                        </Tooltip>
+                      </div>
+                    </Card>
+                  )}
                 </div>
               </Grid>
             </Grid>
