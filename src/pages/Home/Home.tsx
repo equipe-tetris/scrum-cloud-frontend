@@ -5,22 +5,35 @@ import ModalTime from '../../components/ModalTime/ModalTime';
 import TeamCard from '../../components/TeamCard/TeamCard';
 import { Equipe } from '../../models/Equipe';
 import { authService } from '../../services/auth.service';
+import { planningService } from '../../services/planning.service';
 import { teamService } from '../../services/team.service';
 
 import './Home.css'
 
 function Home() {
-    const [modalShow, setModalShow] = useState(false);
+    const userLogged = authService.getDataLoggedUser();
 
+    const [modalShow, setModalShow] = useState(false);
     const [equipes, setEquipes] = useState([]);
+    const [salasPlanning, setSalasPlanning] = useState([]);
+
 
     const buscarTimes = async() => {
         try {
-            const userLogged = authService.getDataLoggedUser();
             const res = await teamService.buscarTimesPorIdUsuario(userLogged.id);
 
             setEquipes(res.data);
         } catch(e) { console.log(e); }
+    }
+
+    const buscarSalasPorIdUsuario = async() => {
+        try {
+            const res = await planningService.buscarSalasPlanningPorIdUsuario(userLogged.id);
+
+            setSalasPlanning(res.data);
+        } catch(e) {
+            console.log(e)
+        }
     }
 
     const history = useHistory();
@@ -32,6 +45,8 @@ function Home() {
 
     useEffect(() => {
        buscarTimes();
+       buscarSalasPorIdUsuario();
+       console.log(salasPlanning)
     }, []);
 
     return (
@@ -60,7 +75,16 @@ function Home() {
             <p className="dashboard-title">Suas salas de Planning Poker</p>
             <hr></hr>
             <div className="teams-cards">
-                <TeamCard />
+                {
+                 salasPlanning.length > 0 ? 
+                 salasPlanning.map((sala, index) => (
+                     <TeamCard 
+                        key={sala.id} 
+                        salaPlanning={sala} 
+                    />
+                )) : console.log('loading')
+            
+                }
                 <div className="box-new-team">
                     <div onClick={() => GotoNextPage()} className="new-team"><i className="fas fa-plus"></i></div>
                 </div>

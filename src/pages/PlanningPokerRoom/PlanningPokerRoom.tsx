@@ -24,7 +24,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 
 import { createTheme } from '@mui/material/styles'
 import { styled } from '@mui/material/styles'
@@ -59,6 +59,21 @@ import { planningService } from '../../services/planning.service'
 import { SalaPlanning } from '../../models/SalaPlanning'
 import { border, width } from '@mui/system'
 import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants'
+import { Metrica } from '../../constants/Metrica'
+import { taskService } from '../../services/task.service'
+import { votacaoService } from '../../services/votacao.service'
+import { createTypeReferenceDirectiveResolutionCache } from 'typescript'
+import StatusVotacao from '../../components/StatusVotacao/StatusVotacao'
+
+
+interface InfoTask {
+  idTask?: number;
+  votosString?: [];
+  votosNumber?: [];
+  mediaVotosNumericos?: number;
+  numVotos?: number;
+  moda?: number;
+}
 
 const useStyles = {
   root: {
@@ -86,6 +101,9 @@ const useStyles = {
 function PlanningPokerRoom() {
   const userLogged = authService.getDataLoggedUser()
 
+  const { id } = useParams<{id?: string}>();
+  const idNumber = Number(id);
+
   const [QuantidadeHistoria, setQuantidadeHistoria] = React.useState(1)
   const [Historias, setHistorias] = React.useState('')
   const [equipesItemCombo, setEquipesItemCombo] = React.useState([])
@@ -110,28 +128,21 @@ function PlanningPokerRoom() {
   const [CurrentClipboardText, setCurrentClipboardText] = React.useState('')
   const [CheckedEndHistory, setCheckedEndHistory] = React.useState(false)
   const [HistoryList, setHistoryList] = React.useState([])
-  const [SelectedCard, setSelectedCard] = React.useState({})
+  const [SelectedCard, setSelectedCard] = React.useState<{content?: string, index?: number}>({});
+  const [salaPlanning, setSalaPlanning] = useState({});
+  const [metrica, setMetrica] = useState('');
+  const [CardsList, setCardList] = useState([]);
+  const [ListTask, setListTask] = useState([]);
+  const [ListIntegrantes, setListIntegrantes] = useState([]);
+  const [statusVotacaoTask, setStatusVotacaoTask] = useState([]);
+  const [infoTask, setInfoTask] = useState<InfoTask>({});
 
   const history = useHistory()
   let crypto = require('crypto')
 
   //opções que virão da api de acordo com a técnica aplicada na criação da sala
-  const CardsList = [
-    { index: 0, name: 'Card 1' },
-    { index: 1, name: 'Card 2' },
-    { index: 2, name: 'Card 3' },
-    { index: 3, name: 'Card 4' },
-    { index: 4, name: 'Card 5' },
-    { index: 5, name: 'Card 6' },
-    { index: 6, name: 'Card 7' },
-    { index: 7, name: 'Card 8' },
-    { index: 8, name: 'Card 9' },
-    { index: 9, name: 'Card 10' },
-    { index: 10, name: 'Card 11' },
-    { index: 11, name: 'Card 12' },
-    { index: 12, name: 'Card 13' },
-    { index: 13, name: 'Card 14' },
-  ]
+  //let CardsList = []
+
 
   //cards selecionados pelos participantes da sala
   const CardSelect = [
@@ -140,33 +151,31 @@ function PlanningPokerRoom() {
     { index: 2, name: 'Card 3' },
   ]
 
-  const criarSalaPlanning = () => {
-    const salaPlanning = {
-      nome: nomeSala,
-      // scrumMaster: scrumMaster,
-      metricaSala: metricaSala,
-      equipe: equipe,
-    }
-
-    try {
-      const res = planningService.cadastrarSalaPlanning(salaPlanning)
-
-      if (res) {
-        console.log('Sucess!')
-      }
-
-      setNomeSala('')
-      setMetricaSala('')
-      setEquipe(0)
-    } catch (e) {
-      console.log(e)
-    }
-  }
 
   const handleChange = (event) => {
     setVote('Votação finalizada')
     setColorVote('#F70000')
-    setChecked(true)
+    setChecked(true);
+
+    inserirVoto();
+    buscarInfoTaskPorId();
+  }
+
+  const inserirVoto = async() => {
+
+    const votoToSend = {
+      idTask: 1,
+      idUsuario: userLogged.id,
+      valorVoto: SelectedCard?.content.toLowerCase()
+    }
+
+    try {
+      const res = await votacaoService.inserirVoto(votoToSend);
+
+      setStatusVotacaoTask(res.data);
+    } catch(e) {
+      console.log(e)
+    }
   }
 
   const handleChangeShowEndedStorys = (event) => {
@@ -196,6 +205,72 @@ function PlanningPokerRoom() {
       getClipBoard()
     }
   }
+
+  const buscarDadosSalaPorId = async() => {
+    try {
+      const res = await planningService.buscarDadosSalaPorId(idNumber);
+
+      setSalaPlanning(res.data);
+      setMetrica(res.data?.metricaSala);
+    } catch(e) {
+      console.log(e);
+    }
+  } 
+
+  const buscarTasksPorIdSala = async() => {
+    try {
+      const res = await taskService.buscarTasksPorIdSala(idNumber);
+
+      setListTask(res.data)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  const setTypeCards = () => {
+    if(metrica == 'PADRAO') {
+      setCardList(Metrica.Padrao)
+    } else if(metrica == 'FIBONACCI'){
+      setCardList(Metrica.Fibonacci)
+    } else {
+      setCardList(Metrica.Relativa)
+    }
+      
+  }
+
+  const buscarInfoTaskPorId = async() => {
+    try {
+      const res = await votacaoService.buscarInfoTaskPorId(1);
+
+      setInfoTask(res.data);
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  const buscarIntegrantesSalaPorId = async() => {
+    try {
+      const res = await planningService.buscarIntegrantesEquipePorIdSala(idNumber);
+
+      setListIntegrantes(res.data)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  useEffect(() => {
+    buscarInfoTaskPorId();
+  }, [SelectedCard])
+
+  useEffect(() => {
+    setTypeCards();
+  }, [metrica])
+
+  useEffect(() => {
+    buscarDadosSalaPorId();
+    buscarTasksPorIdSala();
+    buscarIntegrantesSalaPorId();
+  }, [])
 
   function handleFocusItem(Case) {
     switch (Case) {
@@ -249,26 +324,6 @@ function PlanningPokerRoom() {
     }
   }, [])
 
-  const buscarEquipesComboBox = async () => {
-    try {
-      const res = await teamService.buscarEquipesComboBoxPorUsuario(
-        // userLogged.id,
-        userLogged,
-      )
-
-      setEquipesItemCombo(res.data)
-    } catch (e) {
-      // console.log(e)
-    }
-  }
-
-  const removeTask = (index: number) => {
-    const listAux = [...SessionList]
-
-    listAux.splice(index, 1)
-
-    setSessionList(listAux)
-  }
 
   useEffect(() => {
     Mount()
@@ -294,10 +349,6 @@ function PlanningPokerRoom() {
   }, [handleUserKeyPress])
 
   useEffect(() => {
-    buscarEquipesComboBox()
-  }, [])
-
-  useEffect(() => {
     console.log(SelectedCard)
   }, [SelectedCard])
 
@@ -309,7 +360,7 @@ function PlanningPokerRoom() {
   //   }
   // }
 
-  async function Mount() {
+ async function Mount() {
     await Promise.all([getCodeSession(), getClipBoard()])
   }
 
@@ -326,30 +377,7 @@ function PlanningPokerRoom() {
             alignItems: 'center',
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              borderBottom: '2px solid rgba(34,36,38,.15)',
-              justifyContent: 'space-between',
-              flexDirection: 'row',
-            }}
-          >
-            <Typography style={{ fontWeight: 'bold', fontFamily: 'Segoe UI' }}>
-              Sprint plannig {FormatDate(undefined, 'DD/MM/YYYY')}
-            </Typography>
-            <div style={{ display: 'flex', flexDirection: 'row', flex: 0.22 }}>
-              <Typography
-                style={{
-                  fontWeight: 'bold',
-                  marginRight: '2%',
-                  fontFamily: 'Segoe UI',
-                }}
-              >
-                Nome do usuário | Logout{' '}
-              </Typography>
-              <ExitToAppIcon onClick={() => history.push('/')}></ExitToAppIcon>
-            </div>
-          </div>
+         
           <Card
             style={{ marginTop: '2%', border: '1px solid'.concat(Colors.Gray) }}
           >
@@ -420,7 +448,7 @@ function PlanningPokerRoom() {
                       fontWeight: 'bold',
                     }}
                   >
-                    Nome do usuário
+                    task1
                   </Card>
                 </Card>
                 <Divider
@@ -445,7 +473,8 @@ function PlanningPokerRoom() {
                     flex: 0,
                   }}
                 >
-                  {CardsList.map((item, index) => (
+                  {
+                  CardsList.map((item, index) => (
                     <>
                       <Card
                         onClick={(e) =>
@@ -460,7 +489,7 @@ function PlanningPokerRoom() {
                         <Typography
                           style={{ padding: '.5%', textAlign: 'center' }}
                         >
-                          {item.name}
+                          {item}
                         </Typography>
                       </Card>
                       {index === 2 && (
@@ -534,29 +563,8 @@ function PlanningPokerRoom() {
                         color: Colors.Green,
                       }}
                     >
-                      0
+                      {infoTask?.numVotos}
                     </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={3}
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
-                    <Typography
-                      style={{
-                        fontFamily: 'Segoe UI',
-                        fontWeight: 'bold',
-                        marginLeft: '2%',
-                      }}
-                    >
-                      Min
-                    </Typography>
-                    <MinimizeIcon style={{ color: Colors.Red }} />
                   </Grid>
 
                   <Grid
@@ -576,9 +584,9 @@ function PlanningPokerRoom() {
                         marginLeft: '2%',
                       }}
                     >
-                      Máx
+                      Moda
                     </Typography>
-                    <MinimizeIcon style={{ color: Colors.Orange }} />
+                    {infoTask?.moda}
                   </Grid>
 
                   <Grid
@@ -600,7 +608,7 @@ function PlanningPokerRoom() {
                     >
                       Média
                     </Typography>
-                    <MinimizeIcon style={{ color: Colors.LightBlue }} />
+                    {infoTask?.mediaVotosNumericos}
                   </Grid>
                 </Grid>
                 <div
@@ -751,13 +759,13 @@ function PlanningPokerRoom() {
                               alignItems: 'center',
                               width: '10%',
                             }}
-                          >
-                            <ControlPointIcon
+                          > 
+                          <ControlPointIcon
                               style={{ width: '30px', height: '30px' }}
                               // onMouseEnter={() => handleFocusItem(4)} adicionar a lista de historias
                             />
-                          </IconButton>
-                        </div>
+                          </IconButton> 
+                      </div>
                       ) : (
                         <div
                           style={{
@@ -816,6 +824,7 @@ function PlanningPokerRoom() {
                             padding: '10px',
                           }}
                         >
+                        
                           <Grid container spacing={3}>
                             <Grid
                               id="status"
@@ -881,11 +890,13 @@ function PlanningPokerRoom() {
                         </div>
 
                         <Fragment>
-                          <Grid
+                          {
+                            ListTask.map((task: any) => (
+                              <Grid
                             container
                             spacing={3}
                             style={{ padding: '10px', alignItems: 'center' }}
-                          >
+                              >
                             <Grid
                               id="status"
                               item
@@ -895,9 +906,17 @@ function PlanningPokerRoom() {
                                 justifyContent: 'center',
                               }}
                             >
-                              <FlagIcon
-                                style={{ color: Colors.Green }}
-                              ></FlagIcon>
+                              {
+                                    task?.id == 1 ?
+                                      <FlagIcon
+                                        style={{ color: Colors.Green }}
+                                      ></FlagIcon>
+
+                                      :
+
+                                      <FlagOutlinedIcon />
+                              }
+                             
                             </Grid>
                             <Grid
                               id="index"
@@ -914,7 +933,7 @@ function PlanningPokerRoom() {
                                   fontSize: '13px',
                                 }}
                               >
-                                1
+                               {task?.id}
                               </Typography>
                             </Grid>
                             <Grid item xs={5}>
@@ -924,7 +943,7 @@ function PlanningPokerRoom() {
                                   fontSize: '13px',
                                 }}
                               >
-                                Nome da história
+                               {task?.conteudo}
                               </Typography>
                             </Grid>
                             <Grid
@@ -940,6 +959,9 @@ function PlanningPokerRoom() {
                               ></HighlightOffIcon>
                             </Grid>
                           </Grid>
+                            ))
+                          }
+                          
                         </Fragment>
                       </Card>
                     </div>
@@ -949,17 +971,132 @@ function PlanningPokerRoom() {
                     <div
                       style={{
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        flexDirection: 'row',
+                        width: '100%',
+                        marginLeft: '10%',
                       }}
                     >
-                      <Typography style={{ fontFamily: 'Segoe UI' }}>
-                        Aparecer o nome de quem esta logado
-                      </Typography>
+                     <Card>
+                        <div
+                          style={{
+                            backgroundColor: Colors.LigthGray,
+                            padding: '10px',
+                          }}
+                        >
+                        
+                          <Grid container spacing={3}>
+                           
+                            <Grid
+                              id="index"
+                              item
+                              xs={1}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                #
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={5}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                Nome
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                Status de voto
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </div>
+
+                        <Fragment>
+                          {
+                            ListIntegrantes.map((user: any) => (
+                            <Grid
+                              container
+                              spacing={3}
+                              style={{ padding: '10px', alignItems: 'center' }}
+                            >
+                            
+                            <Grid
+                              id="index"
+                              item
+                              xs={1}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                }}
+                              >
+                               {user?.id}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={5}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                }}
+                              >
+                               {user?.nome}
+                              </Typography>
+                            </Grid>
+                            <Grid
+                              id="status-voto"
+                              item
+                              xs={1}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                }}
+                              >
+                               <StatusVotacao 
+                                userId={user.id} 
+                              />
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                            ))
+                          }
+                        </Fragment>
+                      </Card>
                     </div>
                   )}
 
                   {!!FocusItemShare && (
+                    
                     <Card
                       style={{
                         display: 'flex',
@@ -970,6 +1107,7 @@ function PlanningPokerRoom() {
                         boxShadow: 'none',
                       }}
                     >
+                    
                       <div
                         style={{
                           display: 'flex',

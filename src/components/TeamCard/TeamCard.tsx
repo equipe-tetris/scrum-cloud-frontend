@@ -16,6 +16,18 @@ function TeamCard(props: any) {
             </div>
             </Link>
         )
+    } else if(props.salaPlanning){
+        return (
+            <Link to={`/planningpokerroom/${props?.salaPlanning?.id}`}>
+            <div className="card">
+                <div className="card-body">
+                    <h5 className="card-title">{props?.salaPlanning?.nome}</h5>
+                    <p className="card-text">{props?.salaPlanning?.descricao}</p>
+                    <p className="card-text">Equipe: {props?.salaPlanning?.nomeEquipe}</p>
+                </div>
+            </div>
+            </Link>
+        )
     } else {
         return (
             <> </>

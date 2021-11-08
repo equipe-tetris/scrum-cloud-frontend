@@ -20,7 +20,7 @@ const Routes = () => {
                 <Route path="/recuperar-senha" component={RecuperarSenha} />
                 <Route path="/home/dashboard" component={Home} />
                 <Route path="/configurationroom" component={ConfigurationPlanningPoker} />
-                <Route path="/planningpokerroom" component={PlanningPokerRoom} />
+                <Route path="/planningpokerroom/:id" component={PlanningPokerRoom} />
                 <Route path="/time/:id" exact component={TeamPage} />
                 <Route path="/cadastro-dev/:id" component={RegisterDev} />
             </Switch>
