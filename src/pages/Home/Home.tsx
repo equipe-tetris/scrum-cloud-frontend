@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
+import { Link, Redirect, useLocation, Route, useHistory} from 'react-router-dom';
 import ModalTime from '../../components/ModalTime/ModalTime';
 import TeamCard from '../../components/TeamCard/TeamCard';
 import { Equipe } from '../../models/Equipe';
@@ -20,6 +21,13 @@ function Home() {
 
             setEquipes(res.data);
         } catch(e) { console.log(e); }
+    }
+
+    const history = useHistory();
+
+    function GotoNextPage()
+    {
+        history.push( "/configurationroom" );
     }
 
     useEffect(() => {
@@ -43,7 +51,10 @@ function Home() {
                 }
                
                 <div className="box-new-team">
-                    <div onClick={() => setModalShow(true)} className="new-team"><i className="fas fa-plus"></i></div>
+                    <div 
+                       onClick={() => setModalShow(true)} 
+                       className="new-team"><i className="fas fa-plus"></i>
+                    </div>
                 </div>
             </div>
             <p className="dashboard-title">Suas salas de Planning Poker</p>
@@ -51,7 +62,7 @@ function Home() {
             <div className="teams-cards">
                 <TeamCard />
                 <div className="box-new-team">
-                    <div onClick={() => setModalShow(true)} className="new-team"><i className="fas fa-plus"></i></div>
+                    <div onClick={() => GotoNextPage()} className="new-team"><i className="fas fa-plus"></i></div>
                 </div>
             </div>
             <p className="dashboard-title">Suas salas de Retrospective</p>
@@ -59,7 +70,13 @@ function Home() {
             <div className="teams-cards">
                 <TeamCard />
                 <div className="box-new-team">
-                    <div onClick={() => setModalShow(true)} className="new-team"><i className="fas fa-plus"></i></div>
+                    <div 
+                        onClick={() => setModalShow(true)} 
+                        className="new-team">
+                            <i 
+                                className="fas fa-plus">
+                                </i>
+                                </div>
                 </div>
             </div>
 
