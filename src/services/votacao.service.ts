@@ -23,7 +23,12 @@ export const votacaoService = {
     },
 
     async buscarInfoTaskPorId(idTask: number){
-        const endpoint = `${apiUrl}/buscarVotosPorIdTask/${idTask}`;
+        const endpoint = `${apiUrl}/buscarInfoVotosPorIdTask/${idTask}`;
         return axios.get(endpoint); 
+    },
+
+    async buscarNumVotosPorIdTask(idTask: number) {
+        const endpoint = `${apiUrl}/buscarNumVotosPorIdTask/${idTask}`;
+        return axios.get(endpoint)
     }
 }

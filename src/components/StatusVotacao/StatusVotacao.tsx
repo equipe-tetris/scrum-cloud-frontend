@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { votacaoService } from '../../services/votacao.service';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
@@ -6,53 +6,40 @@ import ThumbDownAlt from '@mui/icons-material/ThumbDownAlt';
 
 function StatusVotacao(props: any){
 
-    const [status, setStatus ] = useState(false);
-    const [listVotos, setListVotos] = useState([]);
+    const [status, setStatus ] = useState(<ThumbDownAltIcon />);
 
     const statusTask = async() => {
         try {
-
-            const res = await votacaoService.statusTaskVotacao(1);
-
-            buscarVotoOnList();
-
-            setListVotos(res.data);
-          
+            const res = await votacaoService.statusTaskVotacao(props?.idTask);
+            buscarVotoOnList(res.data);
         } catch(e) {
           console.log(e)
         }
       }
-    
-      useEffect(() => {
-        statusTask();
-        
-      })
 
-
-      const buscarVotoOnList = () => {
+      const buscarVotoOnList = (listVotos) => {
           let votoAux = listVotos.find(item => {
               return item?.idUser == props?.userId
           })
 
-          if(votoAux != undefined) {
-              setStatus(true);
+          if(votoAux) {
+              setStatus(<ThumbUpIcon />);
           }
       }
 
+      useEffect(() => {
+        setInterval(() => {
+            statusTask()
+        }, 2000)
+    }, []);
 
-    if(status) {
-        return (
+    
+    return (
             <div>
-                <ThumbUpIcon />
+                {status} 
             </div>
         )
-    } else {
-        return (
-            <div>
-                <ThumbDownAltIcon />
-            </div>
-        )
-    }
+    
    
 }
 

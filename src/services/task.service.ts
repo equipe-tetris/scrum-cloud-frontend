@@ -7,5 +7,15 @@ export const taskService = {
     async buscarTasksPorIdSala(idSala: number) {
         const endpoint = `${apiUrl}/buscarTasksPorIdSala/${idSala}`;
         return axios.get(endpoint);
+    },
+
+    async mudarStatusTaskPorId(statusTask: boolean, idTask: number) {
+        const endpoint = `${apiUrl}/mudarStatusTaskPorId?statusTask=${statusTask}&idTask=${idTask}`;
+        return axios.post(endpoint);
+    },
+
+    async getStatusTaskPorId(idTask: number) {
+        const endpoint = `${apiUrl}/getStatusTaskPorId/${idTask}`;
+        return axios.get(endpoint);
     }
 }

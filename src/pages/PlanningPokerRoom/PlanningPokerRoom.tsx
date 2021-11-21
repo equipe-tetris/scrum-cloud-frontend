@@ -75,6 +75,12 @@ interface InfoTask {
   moda?: number;
 }
 
+interface CurrentVote {
+  id?: number;
+  conteudo?: string;
+  finalizado?: boolean;
+}
+
 const useStyles = {
   root: {
     display: 'flex',
@@ -106,17 +112,13 @@ function PlanningPokerRoom() {
 
   const [QuantidadeHistoria, setQuantidadeHistoria] = React.useState(1)
   const [Historias, setHistorias] = React.useState('')
-  const [equipesItemCombo, setEquipesItemCombo] = React.useState([])
 
   const [SessionList, setSessionList] = React.useState([])
 
-  const [nomeSala, setNomeSala] = React.useState('')
-  // const [scrumMaster, setScrumMaster] = React.useState(userLogged.id);
-  const [metricaSala, setMetricaSala] = React.useState('')
   const [equipe, setEquipe] = React.useState(0)
   const [checked, setChecked] = React.useState(false)
-  const [Vote, setVote] = React.useState('Votação em andamento')
-  const [ColorVote, setColorVote] = React.useState('#00B81C')
+  const [Vote, setVote] = React.useState('')
+  const [ColorVote, setColorVote] = React.useState('')
   const [FocusItemStory, setFocusItemStory] = React.useState(true)
   const [FocusItemUsers, setFocusItemUsers] = React.useState(false)
   const [FocusItemShare, setFocusItemShare] = React.useState(false)
@@ -136,35 +138,50 @@ function PlanningPokerRoom() {
   const [ListIntegrantes, setListIntegrantes] = useState([]);
   const [statusVotacaoTask, setStatusVotacaoTask] = useState([]);
   const [infoTask, setInfoTask] = useState<InfoTask>({});
+  const [ItemCurrentVote, setItemCurrentVote] = useState<CurrentVote>({});
+  const [StatusItemVote, setStatusItemVote] = useState(false);
+  const [NumberVoteTask, setNumberVoteTask] = useState(0);
 
   const history = useHistory()
   let crypto = require('crypto')
 
-  //opções que virão da api de acordo com a técnica aplicada na criação da sala
-  //let CardsList = []
 
+  const handleChangeEndVote = (event) => {
+    if(event.target.checked) {
+      setVote('Votação finalizada')
+      setColorVote('#F70000')
+      setChecked(true);
+      changeStatusVotacaoItem(true);
+    } else {
+      setVote('Votação em andamento');
+      setColorVote('#00B81C');
+      setChecked(false);
+      changeStatusVotacaoItem(false);
+    }
+    
+    
+    setTimeout(() => {
+      buscarTasksPorIdSala();
+    }, 1000)
+  }
 
-  //cards selecionados pelos participantes da sala
-  const CardSelect = [
-    { index: 0, name: 'Card 1' },
-    { index: 1, name: 'Card 2' },
-    { index: 2, name: 'Card 3' },
-  ]
+  const changeStatusVotacaoItem = async(statusTask: boolean) => {
 
+    const statusTaskToSend = statusTask;
+    const idTaskToSend = ItemCurrentVote?.id;
 
-  const handleChange = (event) => {
-    setVote('Votação finalizada')
-    setColorVote('#F70000')
-    setChecked(true);
+    try {
+      const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend);
 
-    inserirVoto();
-    buscarInfoTaskPorId();
+    } catch(e) {
+      console.log(e);
+    }
   }
 
   const inserirVoto = async() => {
 
     const votoToSend = {
-      idTask: 1,
+      idTask: ItemCurrentVote?.id,
       idUsuario: userLogged.id,
       valorVoto: SelectedCard?.content.toLowerCase()
     }
@@ -306,6 +323,8 @@ function PlanningPokerRoom() {
     // let result = Object.create(isc + sc)
     let result = { index: isc, content: sc }
     setSelectedCard(result)
+
+    inserirVoto();
   }
 
   const handleUserKeyPress = useCallback((event) => {
@@ -348,22 +367,49 @@ function PlanningPokerRoom() {
     }
   }, [handleUserKeyPress])
 
-  useEffect(() => {
-    console.log(SelectedCard)
-  }, [SelectedCard])
-
-  // function ConverterCards() {
-  //   console.log(SessionList)
-  //   if (!!Historias && Historias.length > 0) {
-  //     let a = Historias.split(/\r\n|\r|\n/)
-  //     setSessionList(a)
-  //   }
-  // }
-
  async function Mount() {
     await Promise.all([getCodeSession(), getClipBoard()])
   }
 
+  const itemClicked = async (item: any) => {
+
+    const currentVote: CurrentVote = {
+      id: item?.id,
+      conteudo: item?.conteudo,
+      finalizado: item?.finalizado
+    }
+
+    setItemCurrentVote(currentVote);
+
+    setInicialStateVote(currentVote);
+
+    buscarNumVotosPorIdTask(currentVote?.id);
+  }
+
+  const setInicialStateVote = (currentVote) => {
+    if(currentVote?.finalizado) {
+      setVote('Votação finalizada')
+      setColorVote('#F70000')
+      setChecked(true);
+    } else {
+      setVote('Votação em andamento');
+      setColorVote('#00B81C');
+      setChecked(false);
+    }
+  }
+
+  const buscarNumVotosPorIdTask = async(idCurrentTask: number) => {
+    try {
+      const res = await votacaoService.buscarNumVotosPorIdTask(idCurrentTask);
+
+      setNumberVoteTask(res.data);
+
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  
   return (
     <div className="container-login">
       <CssBaseline />
@@ -393,27 +439,33 @@ function PlanningPokerRoom() {
             >
               <p style={{ margin: '1% 0 1% 2%', color: '#ffffff' }}> {Vote}</p>
             </div>
+            
+            {
+              userLogged.tipoUsuario === 'SM' && ItemCurrentVote?.id ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginLeft: '1%',
+                  }}
+                >
+                <Switch
+                  checked={checked}
+                  onChange={handleChangeEndVote}
+                  color="primary"
+                ></Switch>
 
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginLeft: '1%',
-              }}
-            >
-              <Switch
-                checked={checked}
-                onChange={handleChange}
-                color="primary"
-              ></Switch>
-
-              <Typography
-                style={{ fontFamily: 'Segoe UI', fontWeight: 'bold' }}
-              >
-                Finalização de voto
-              </Typography>
-            </div>
+                <Typography
+                  style={{ fontFamily: 'Segoe UI', fontWeight: 'bold' }}
+                >
+                  Finalizar votação deste item
+                </Typography>
+              </div>
+            ) : ( <> </> )
+             
+          }
+            
             <Grid container spacing={2}>
               <Grid item xs={7} style={{ marginLeft: 0 }}>
                 {/* <div style={{ width: '60%' }}> */}
@@ -438,6 +490,7 @@ function PlanningPokerRoom() {
                     border: '1px solid #000000',
                   }}
                 >
+                  Seu voto:
                   {Object.values(SelectedCard).toString().slice(2).length <= 6
                     ? Object.values(SelectedCard).toString().slice(2)
                     : Object.values(SelectedCard).toString().slice(3)}
@@ -448,7 +501,7 @@ function PlanningPokerRoom() {
                       fontWeight: 'bold',
                     }}
                   >
-                    task1
+                    {ItemCurrentVote?.conteudo}
                   </Card>
                 </Card>
                 <Divider
@@ -563,7 +616,7 @@ function PlanningPokerRoom() {
                         color: Colors.Green,
                       }}
                     >
-                      {infoTask?.numVotos}
+                      {NumberVoteTask}
                     </Typography>
                   </Grid>
 
@@ -907,14 +960,20 @@ function PlanningPokerRoom() {
                               }}
                             >
                               {
-                                    task?.id == 1 ?
+                                    task?.finalizado ? (
                                       <FlagIcon
-                                        style={{ color: Colors.Green }}
+                                        style={{ 
+                                          color: Colors.Green, 
+                                          cursor: 'pointer'
+                                        }}
+                                        onClick={(evt) => itemClicked(task)}
                                       ></FlagIcon>
-
-                                      :
-
-                                      <FlagOutlinedIcon />
+                                    ) : (
+                                      <FlagOutlinedIcon 
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={(evt) => itemClicked(task)} 
+                                      />
+                                    ) 
                               }
                              
                             </Grid>
@@ -924,7 +983,7 @@ function PlanningPokerRoom() {
                               xs={1}
                               style={{
                                 display: 'flex',
-                                justifyContent: 'center',
+                                justifyContent: 'center'
                               }}
                             >
                               <Typography
@@ -1082,9 +1141,16 @@ function PlanningPokerRoom() {
                                   fontSize: '13px',
                                 }}
                               >
-                               <StatusVotacao 
-                                userId={user.id} 
-                              />
+                                {
+                                    ItemCurrentVote?.id ? (
+                                      <StatusVotacao 
+                                        idTask={ItemCurrentVote?.id}
+                                        userId={user?.id} 
+                                      />
+                                    ) : ( <> </> )
+                                  
+                                }
+                               
                               </Typography>
                             </Grid>
                           </Grid>
