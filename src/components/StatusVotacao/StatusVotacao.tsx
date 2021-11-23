@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { votacaoService } from '../../services/votacao.service';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
-import ThumbDownAlt from '@mui/icons-material/ThumbDownAlt';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 function StatusVotacao(props: any){
 
-    const [status, setStatus ] = useState(<ThumbDownAltIcon />);
+    const [status, setStatus ] = useState(<AccessTimeIcon />);
 
     const statusTask = async() => {
         try {
@@ -28,9 +27,7 @@ function StatusVotacao(props: any){
       }
 
       useEffect(() => {
-        setInterval(() => {
-            statusTask()
-        }, 2000)
+        statusTask()
     }, []);
 
     

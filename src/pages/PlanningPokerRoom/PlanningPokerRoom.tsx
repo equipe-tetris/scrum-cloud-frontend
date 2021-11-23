@@ -22,6 +22,7 @@ import {
   Grid,
   Link,
   Tooltip,
+  Box,
 } from '@mui/material'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useHistory, useParams } from 'react-router-dom'
@@ -45,6 +46,7 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import FlagIcon from '@mui/icons-material/Flag' // current history
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined'
+import AddTaskIcon from '@mui/icons-material/AddTask';
 
 import './PlanningPokerRoom.css'
 import { FormatDate } from '../../utils/DateUtil'
@@ -64,6 +66,8 @@ import { taskService } from '../../services/task.service'
 import { votacaoService } from '../../services/votacao.service'
 import { createTypeReferenceDirectiveResolutionCache } from 'typescript'
 import StatusVotacao from '../../components/StatusVotacao/StatusVotacao'
+import ValorVoto from '../../components/ValorVotoIntegrante/ValorVoto'
+import { FormatColorResetRounded } from '@mui/icons-material'
 
 
 interface InfoTask {
@@ -141,6 +145,8 @@ function PlanningPokerRoom() {
   const [ItemCurrentVote, setItemCurrentVote] = useState<CurrentVote>({});
   const [StatusItemVote, setStatusItemVote] = useState(false);
   const [NumberVoteTask, setNumberVoteTask] = useState(0);
+  const [FinalValueTask, setFinalValueTask] = useState('');
+  const [PersistenceFinalValue, setPersistenceFinalValue] = useState('');
 
   const history = useHistory()
   let crypto = require('crypto')
@@ -152,30 +158,45 @@ function PlanningPokerRoom() {
       setColorVote('#F70000')
       setChecked(true);
       changeStatusVotacaoItem(true);
+
+      buscarInfoTaskPorId(ItemCurrentVote?.id);
+      getValorFinalTaskPorId(ItemCurrentVote?.id)
     } else {
       setVote('Votação em andamento');
       setColorVote('#00B81C');
       setChecked(false);
       changeStatusVotacaoItem(false);
+
+      setInfoTask(null);
     }
-    
-    
+
     setTimeout(() => {
       buscarTasksPorIdSala();
-    }, 1000)
+    }, 700)
+    
   }
 
   const changeStatusVotacaoItem = async(statusTask: boolean) => {
-
     const statusTaskToSend = statusTask;
     const idTaskToSend = ItemCurrentVote?.id;
 
     try {
       const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend);
+      atualizarStateCurrentItemCard(statusTask);
 
     } catch(e) {
       console.log(e);
     }
+  }
+
+  const atualizarStateCurrentItemCard = (statusTask: boolean) => {
+      const currentCard: CurrentVote = { 
+        id: ItemCurrentVote?.id,
+        conteudo: ItemCurrentVote?.conteudo,
+        finalizado: statusTask
+      }
+
+      setItemCurrentVote(currentCard);
   }
 
   const inserirVoto = async() => {
@@ -183,7 +204,7 @@ function PlanningPokerRoom() {
     const votoToSend = {
       idTask: ItemCurrentVote?.id,
       idUsuario: userLogged.id,
-      valorVoto: SelectedCard?.content.toLowerCase()
+      valorVoto: SelectedCard?.content?.toLowerCase()
     }
 
     try {
@@ -255,9 +276,9 @@ function PlanningPokerRoom() {
       
   }
 
-  const buscarInfoTaskPorId = async() => {
+  const buscarInfoTaskPorId = async(id: number) => {
     try {
-      const res = await votacaoService.buscarInfoTaskPorId(1);
+      const res = await votacaoService.buscarInfoTaskPorId(id);
 
       setInfoTask(res.data);
     } catch(e) {
@@ -274,10 +295,6 @@ function PlanningPokerRoom() {
       console.log(e)
     }
   }
-
-  useEffect(() => {
-    buscarInfoTaskPorId();
-  }, [SelectedCard])
 
   useEffect(() => {
     setTypeCards();
@@ -391,10 +408,18 @@ function PlanningPokerRoom() {
       setVote('Votação finalizada')
       setColorVote('#F70000')
       setChecked(true);
+   
+      setTimeout(() => {
+        buscarInfoTaskPorId(currentVote?.id);
+        getValorFinalTaskPorId(currentVote?.id);
+      }, 300)
+      
     } else {
       setVote('Votação em andamento');
       setColorVote('#00B81C');
       setChecked(false);
+
+      setInfoTask(null);
     }
   }
 
@@ -406,6 +431,30 @@ function PlanningPokerRoom() {
 
     } catch(e) {
       console.log(e)
+    }
+  }
+
+  const setValorFinalPorIdTask = async() => {
+
+    try {
+      const res = await taskService.setValorFinalPorIdTask(ItemCurrentVote?.id, FinalValueTask);
+
+      setFinalValueTask('');
+      console.log(res.data)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  const getValorFinalTaskPorId = async(idTask: number) => {
+
+    try {
+      const res = await taskService.getValorFinalTaskPorId(idTask);
+
+     setPersistenceFinalValue(res.data);
+
+    } catch(e) {
+      console.log(e);
     }
   }
 
@@ -663,6 +712,29 @@ function PlanningPokerRoom() {
                     </Typography>
                     {infoTask?.mediaVotosNumericos}
                   </Grid>
+                  <Grid
+                    item
+                    xs={3}
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    
+                    <Typography
+                      style={{
+                        fontFamily: 'Segoe UI',
+                        fontWeight: 'bold',
+                        marginLeft: '2%',
+                      }}
+                    >
+                     Valor Final
+                    </Typography>
+                    
+                    {FinalValueTask}
+                  </Grid>
                 </Grid>
                 <div
                   style={{
@@ -787,6 +859,43 @@ function PlanningPokerRoom() {
                 >
                   {!!FocusItemStory ? (
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {!!ItemCurrentVote?.finalizado ? (
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Input
+                            placeholder="Defina o valor final deste item"
+                            value={FinalValueTask}
+                            onChange={(e) => setFinalValueTask(e.target.value)}
+                            size="small"
+                            style={{
+                              fontSize: '14px',
+                              fontFamily: 'Segoe UI',
+                              width: '50%',
+                              height: '20px',
+                              border: '1px solid'.concat(Colors.LigthGray),
+                              padding: '3%',
+                              borderRadius: '5px',
+                            }}
+                          ></Input>
+                          <AddTaskIcon
+                            color="primary"
+                            style={{
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              width: '10%',
+                              cursor: 'pointer'
+                            }}
+                            onClick={(e) => setValorFinalPorIdTask()}
+                          > 
+                          <ControlPointIcon
+                              style={{ width: '30px', height: '30px' }}
+                              // onMouseEnter={() => handleFocusItem(4)} adicionar a lista de historias
+                            />
+                          </AddTaskIcon> 
+                      </div>
+                      ) : ( <></> )
+                      
+                      }
+
                       {!!FocusItemAddNewStory ? (
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                           <Input
@@ -1086,6 +1195,18 @@ function PlanningPokerRoom() {
                                 Status de voto
                               </Typography>
                             </Grid>
+
+                            <Grid item xs={3}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                Valor do voto
+                              </Typography>
+                            </Grid>
                           </Grid>
                         </div>
 
@@ -1129,7 +1250,7 @@ function PlanningPokerRoom() {
                             <Grid
                               id="status-voto"
                               item
-                              xs={1}
+                              xs={3}
                               style={{
                                 display: 'flex',
                                 justifyContent: 'center',
@@ -1148,6 +1269,25 @@ function PlanningPokerRoom() {
                                         userId={user?.id} 
                                       />
                                     ) : ( <> </> )
+                                  
+                                }
+                               
+                              </Typography>
+                            </Grid>
+
+                            <Grid item xs={3}>
+                              <Typography
+                                style={{
+                                  fontFamily: 'Segoe UI',
+                                  fontSize: '13px',
+                                }}
+                              >
+                                {
+                                  !!ItemCurrentVote?.finalizado && 
+                                    <ValorVoto
+                                      idTask={ItemCurrentVote?.id}
+                                      idUser={user?.id}
+                                    />
                                   
                                 }
                                
