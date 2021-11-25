@@ -1,3 +1,4 @@
+import { Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { votacaoService } from '../../services/votacao.service';
@@ -23,7 +24,16 @@ function ValorVoto(props) {
 
     return (
         <>
-            {valorVoto ? valorVoto : ''} 
+                <Typography
+                    style={{
+                        fontWeight: 'bold',
+                        fontSize: '13px',
+                        fontFamily: 'Segoe UI',
+                     }}
+                >
+                    {valorVoto ? valorVoto : ''}
+                </Typography>
+             
         </>
     )
 }

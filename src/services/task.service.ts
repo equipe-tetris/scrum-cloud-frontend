@@ -9,7 +9,7 @@ export const taskService = {
         return axios.get(endpoint);
     },
 
-    async mudarStatusTaskPorId(statusTask: boolean, idTask: number) {
+    async mudarStatusTaskPorId(statusTask: string, idTask: number) {
         const endpoint = `${apiUrl}/mudarStatusTaskPorId?statusTask=${statusTask}&idTask=${idTask}`;
         return axios.post(endpoint);
     },
@@ -26,6 +26,11 @@ export const taskService = {
 
     async getValorFinalTaskPorId(idTask: number) {
         const endpoint = `${apiUrl}/getValorFinalTaskPorId/${idTask}`;
+        return axios.get(endpoint);
+    },
+
+    async buscarTaskAtualParaVotacaoPorIdSala(idSala: number) {
+        const endpoint = `${apiUrl}/buscarTaskAtualParaVotacaoPorIdSala/${idSala}`;
         return axios.get(endpoint);
     }
 }

@@ -52,6 +52,9 @@ import './PlanningPokerRoom.css'
 import { FormatDate } from '../../utils/DateUtil'
 import { Colors } from '../../constants/Colors'
 
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
 import Logo from '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
 import API from '../../config/api'
 
@@ -69,6 +72,7 @@ import StatusVotacao from '../../components/StatusVotacao/StatusVotacao'
 import ValorVoto from '../../components/ValorVotoIntegrante/ValorVoto'
 import { FormatColorResetRounded } from '@mui/icons-material'
 
+const MySwal = withReactContent(Swal);
 
 interface InfoTask {
   idTask?: number;
@@ -82,7 +86,7 @@ interface InfoTask {
 interface CurrentVote {
   id?: number;
   conteudo?: string;
-  finalizado?: boolean;
+  status?: string;
 }
 
 const useStyles = {
@@ -143,7 +147,7 @@ function PlanningPokerRoom() {
   const [statusVotacaoTask, setStatusVotacaoTask] = useState([]);
   const [infoTask, setInfoTask] = useState<InfoTask>({});
   const [ItemCurrentVote, setItemCurrentVote] = useState<CurrentVote>({});
-  const [StatusItemVote, setStatusItemVote] = useState(false);
+  const [StatusItemVote, setStatusItemVote] = useState('ABERTA');
   const [NumberVoteTask, setNumberVoteTask] = useState(0);
   const [FinalValueTask, setFinalValueTask] = useState('');
   const [PersistenceFinalValue, setPersistenceFinalValue] = useState('');
@@ -154,19 +158,31 @@ function PlanningPokerRoom() {
 
   const handleChangeEndVote = (event) => {
     if(event.target.checked) {
-      setVote('Votação finalizada')
-      setColorVote('#F70000')
-      setChecked(true);
-      changeStatusVotacaoItem(true);
-
-      buscarInfoTaskPorId(ItemCurrentVote?.id);
-      getValorFinalTaskPorId(ItemCurrentVote?.id)
+      MySwal.fire({
+        title: <p>Finalizar votação deste item? </p>,
+        showConfirmButton: true,
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'OK'
+      }).then((result) => {
+        if(result.isConfirmed) {
+          setVote('Votação finalizada')
+          setColorVote('#F70000')
+          setChecked(true);
+          changeStatusVotacaoItem('FINALIZADO', ItemCurrentVote);
+    
+          buscarInfoTaskPorId(ItemCurrentVote?.id);
+          if(!PersistenceFinalValue) {
+            getValorFinalTaskPorId(ItemCurrentVote?.id)
+          }
+        }
+      });
+      
     } else {
       setVote('Votação em andamento');
       setColorVote('#00B81C');
       setChecked(false);
-      changeStatusVotacaoItem(false);
-
+      changeStatusVotacaoItem('ATUAL', ItemCurrentVote);
       setInfoTask(null);
     }
 
@@ -176,35 +192,25 @@ function PlanningPokerRoom() {
     
   }
 
-  const changeStatusVotacaoItem = async(statusTask: boolean) => {
+  const changeStatusVotacaoItem = async(statusTask: string, currentVote: CurrentVote) => {
     const statusTaskToSend = statusTask;
-    const idTaskToSend = ItemCurrentVote?.id;
+    const idTaskToSend = currentVote?.id;
 
     try {
       const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend);
-      atualizarStateCurrentItemCard(statusTask);
-
     } catch(e) {
       console.log(e);
     }
   }
 
-  const atualizarStateCurrentItemCard = (statusTask: boolean) => {
-      const currentCard: CurrentVote = { 
-        id: ItemCurrentVote?.id,
-        conteudo: ItemCurrentVote?.conteudo,
-        finalizado: statusTask
-      }
-
-      setItemCurrentVote(currentCard);
-  }
+ 
 
   const inserirVoto = async() => {
 
     const votoToSend = {
       idTask: ItemCurrentVote?.id,
       idUsuario: userLogged.id,
-      valorVoto: SelectedCard?.content?.toLowerCase()
+      valorVoto: SelectedCard?.content
     }
 
     try {
@@ -265,6 +271,16 @@ function PlanningPokerRoom() {
     }
   }
 
+  const buscarTaskAtualParaVotacaoPorIdSala = async() => {
+    try {
+      const res = await taskService.buscarTaskAtualParaVotacaoPorIdSala(idNumber);
+
+     setItemCurrentVote(res.data);
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
   const setTypeCards = () => {
     if(metrica == 'PADRAO') {
       setCardList(Metrica.Padrao)
@@ -302,8 +318,18 @@ function PlanningPokerRoom() {
 
   useEffect(() => {
     buscarDadosSalaPorId();
-    buscarTasksPorIdSala();
     buscarIntegrantesSalaPorId();
+  }, [])
+
+  useEffect(() => {
+   setInterval(() => {
+      if(userLogged?.tipoUsuario === 'SM') {
+        buscarTasksPorIdSala();
+      } else {
+        buscarTasksPorIdSala();
+        buscarTaskAtualParaVotacaoPorIdSala();
+      }
+    }, 3000)
   }, [])
 
   function handleFocusItem(Case) {
@@ -338,10 +364,20 @@ function PlanningPokerRoom() {
 
   function handleSelectedCard(isc, sc) {
     // let result = Object.create(isc + sc)
-    let result = { index: isc, content: sc }
-    setSelectedCard(result)
+    MySwal.fire({
+      title: <p>Confirmar seu voto? </p>,
+      showConfirmButton: true,
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'OK'
+    }).then((result) => {
+      if(result.isConfirmed) {
+        let result = { index: isc, content: sc }
+        setSelectedCard(result)
 
-    inserirVoto();
+        inserirVoto();
+      }
+    });
   }
 
   const handleUserKeyPress = useCallback((event) => {
@@ -388,23 +424,37 @@ function PlanningPokerRoom() {
     await Promise.all([getCodeSession(), getClipBoard()])
   }
 
-  const itemClicked = async (item: any) => {
+  const itemClicked = (item: any) => {
 
     const currentVote: CurrentVote = {
       id: item?.id,
       conteudo: item?.conteudo,
-      finalizado: item?.finalizado
+      status: item?.status
     }
 
-    setItemCurrentVote(currentVote);
+    MySwal.fire({
+      title: <p>Mudar item em votação? </p>,
+      showConfirmButton: true,
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'OK'
+    }).then((result) => {
+      if(result.isConfirmed) {
+        setItemCurrentVote(currentVote);
 
-    setInicialStateVote(currentVote);
+        setInicialStateVote(currentVote);
 
-    buscarNumVotosPorIdTask(currentVote?.id);
+        buscarNumVotosPorIdTask(currentVote?.id);
+
+       changeStatusVotacaoItem('ATUAL', currentVote);
+      }
+    });
+
+   
   }
 
   const setInicialStateVote = (currentVote) => {
-    if(currentVote?.finalizado) {
+    if(currentVote?.status === 'FINALIZADO') {
       setVote('Votação finalizada')
       setColorVote('#F70000')
       setChecked(true);
@@ -539,7 +589,7 @@ function PlanningPokerRoom() {
                     border: '1px solid #000000',
                   }}
                 >
-                  Seu voto:
+                  Seu voto: 
                   {Object.values(SelectedCard).toString().slice(2).length <= 6
                     ? Object.values(SelectedCard).toString().slice(2)
                     : Object.values(SelectedCard).toString().slice(3)}
@@ -586,6 +636,7 @@ function PlanningPokerRoom() {
                           display: 'flex',
                           flex: 1,
                           margin: '2% 1% 2% 1%',
+                          cursor: 'pointer'
                         }}
                       >
                         <Typography
@@ -733,7 +784,7 @@ function PlanningPokerRoom() {
                      Valor Final
                     </Typography>
                     
-                    {FinalValueTask}
+                    {PersistenceFinalValue}
                   </Grid>
                 </Grid>
                 <div
@@ -765,7 +816,7 @@ function PlanningPokerRoom() {
                       borderBottomRightRadius: 0,
                     }}
                   >
-                    <ListIcon style={{ width: '20px', height: '20px' }} />
+                    <ListIcon style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
                     <Typography
                       onClick={() => handleFocusItem(1)}
                       style={{
@@ -773,6 +824,7 @@ function PlanningPokerRoom() {
                         marginLeft: '5px',
                         fontSize: '13px',
                         alignItems: 'center',
+                        cursor: 'pointer'
                       }}
                     >
                       Histórias
@@ -799,13 +851,14 @@ function PlanningPokerRoom() {
                       borderBottomRightRadius: 0,
                     }}
                   >
-                    <PeopleAltIcon style={{ width: '15px', height: '15px' }} />
+                    <PeopleAltIcon style={{ width: '15px', height: '15px', cursor: 'pointer' }} />
                     <Typography
                       onClick={() => handleFocusItem(2)}
                       style={{
                         fontWeight: 'bold',
                         marginLeft: '2px',
                         fontSize: '13px',
+                        cursor: 'pointer'
                       }}
                     >
                       Usuários
@@ -832,13 +885,14 @@ function PlanningPokerRoom() {
                       borderBottomRightRadius: 0,
                     }}
                   >
-                    <ShareIcon style={{ width: '15px', height: '15px' }} />
+                    <ShareIcon style={{ width: '15px', height: '15px', cursor: 'pointer' }} />
                     <Typography
                       onClick={() => handleFocusItem(3)}
                       style={{
                         fontWeight: 'bold',
                         marginLeft: '5px',
                         fontSize: '13px',
+                        cursor: 'pointer'
                       }}
                     >
                       Compartilhar
@@ -859,7 +913,7 @@ function PlanningPokerRoom() {
                 >
                   {!!FocusItemStory ? (
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      {!!ItemCurrentVote?.finalizado ? (
+                      {ItemCurrentVote?.status === 'FINALIZADO' && userLogged?.tipoUsuario == "SM" ? (
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                           <Input
                             placeholder="Defina o valor final deste item"
@@ -1069,20 +1123,48 @@ function PlanningPokerRoom() {
                               }}
                             >
                               {
-                                    task?.finalizado ? (
-                                      <FlagIcon
-                                        style={{ 
-                                          color: Colors.Green, 
-                                          cursor: 'pointer'
-                                        }}
-                                        onClick={(evt) => itemClicked(task)}
-                                      ></FlagIcon>
-                                    ) : (
-                                      <FlagOutlinedIcon 
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={(evt) => itemClicked(task)} 
-                                      />
-                                    ) 
+                                userLogged?.tipoUsuario == "SM" ? (
+                                  
+                                  task?.status === 'FINALIZADO' && (
+                                    <FlagIcon
+                                      style={{ 
+                                        color: Colors.LightBlue, 
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={(evt) => itemClicked(task)}
+                                    ></FlagIcon> 
+                                  ) || task?.status === 'ATUAL' && (
+                                    <FlagIcon
+                                      style={{ 
+                                        color: Colors.Green, 
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={(evt) => itemClicked(task)}
+                                    ></FlagIcon> 
+                                  ) || ( 
+                                    <FlagOutlinedIcon 
+                                      style={{ cursor: 'pointer' }} 
+                                      onClick={(evt) => itemClicked(task)}
+                                    /> 
+                                  ) 
+
+                                ) : (
+                                  task?.status === 'FINALIZADO' && (
+                                    <FlagIcon
+                                      style={{ 
+                                        color: Colors.LightBlue, 
+                                        cursor: 'pointer'
+                                      }}
+                                    ></FlagIcon> 
+                                  ) || task?.status === 'ATUAL' && (
+                                    <FlagIcon
+                                      style={{ 
+                                        color: Colors.Green, 
+                                        cursor: 'pointer'
+                                      }}
+                                    ></FlagIcon> 
+                                  ) || ( <FlagOutlinedIcon style={{ cursor: 'pointer' }} /> ) 
+                                )   
                               }
                              
                             </Grid>
@@ -1122,9 +1204,15 @@ function PlanningPokerRoom() {
                                 justifyContent: 'left',
                               }}
                             >
-                              <HighlightOffIcon
-                                style={{ color: Colors.Red }}
-                              ></HighlightOffIcon>
+                              {
+                                userLogged?.tipoUsuario === 'SM' ? (
+                                  <HighlightOffIcon
+                                    style={{ color: Colors.Red }}
+                                  ></HighlightOffIcon>
+                                ) : (<> </>)
+                                 
+                              } 
+                             
                             </Grid>
                           </Grid>
                             ))
@@ -1276,22 +1364,14 @@ function PlanningPokerRoom() {
                             </Grid>
 
                             <Grid item xs={3}>
-                              <Typography
-                                style={{
-                                  fontFamily: 'Segoe UI',
-                                  fontSize: '13px',
-                                }}
-                              >
                                 {
-                                  !!ItemCurrentVote?.finalizado && 
+                                  ItemCurrentVote?.status === 'FINALIZADO' && 
                                     <ValorVoto
                                       idTask={ItemCurrentVote?.id}
                                       idUser={user?.id}
                                     />
                                   
                                 }
-                               
-                              </Typography>
                             </Grid>
                           </Grid>
                             ))
