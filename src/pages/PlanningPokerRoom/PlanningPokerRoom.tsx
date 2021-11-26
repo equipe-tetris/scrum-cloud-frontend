@@ -151,6 +151,7 @@ function PlanningPokerRoom() {
   const [NumberVoteTask, setNumberVoteTask] = useState(0);
   const [FinalValueTask, setFinalValueTask] = useState('');
   const [PersistenceFinalValue, setPersistenceFinalValue] = useState('');
+  const [ItemIsFinished, setItemIsFineshed] = useState(false);
 
   const history = useHistory()
   let crypto = require('crypto')
@@ -169,35 +170,52 @@ function PlanningPokerRoom() {
           setVote('Votação finalizada')
           setColorVote('#F70000')
           setChecked(true);
-          changeStatusVotacaoItem('FINALIZADO', ItemCurrentVote);
+          changeStatusVotacaoItem('FINALIZADO', ItemCurrentVote, true);
     
           buscarInfoTaskPorId(ItemCurrentVote?.id);
-          if(!PersistenceFinalValue) {
-            getValorFinalTaskPorId(ItemCurrentVote?.id)
-          }
+            
+          getValorFinalTaskPorId(ItemCurrentVote?.id);
+            
+          setItemIsFineshed(true);
+          
         }
       });
       
     } else {
-      setVote('Votação em andamento');
-      setColorVote('#00B81C');
-      setChecked(false);
-      changeStatusVotacaoItem('ATUAL', ItemCurrentVote);
-      setInfoTask(null);
-    }
+      MySwal.fire({
+        title: <p>Colocar este novamente para votação? </p>,
+        showConfirmButton: true,
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'OK'
+      }).then((result) => {
+        if(result.isConfirmed) {
+          setVote('Votação em andamento');
+          setColorVote('#00B81C');
+          setChecked(false);
+          changeStatusVotacaoItem('ATUAL', ItemCurrentVote, true);
+          setInfoTask(null);
 
-    setTimeout(() => {
-      buscarTasksPorIdSala();
-    }, 700)
+          setPersistenceFinalValue(null);
+
+          setItemIsFineshed(false);
+
+          setTimeout(() => {
+            buscarTasksPorIdSala();
+          }, 700)
+        }
+      });
+    }
     
   }
 
-  const changeStatusVotacaoItem = async(statusTask: string, currentVote: CurrentVote) => {
+  const changeStatusVotacaoItem = async(statusTask: string, currentVote: CurrentVote, permitir: boolean) => {
     const statusTaskToSend = statusTask;
     const idTaskToSend = currentVote?.id;
+    const permitirToSend = permitir;
 
     try {
-      const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend);
+      const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend, permitirToSend);
     } catch(e) {
       console.log(e);
     }
@@ -205,12 +223,12 @@ function PlanningPokerRoom() {
 
  
 
-  const inserirVoto = async() => {
+  const inserirVoto = async(result) => {
 
     const votoToSend = {
       idTask: ItemCurrentVote?.id,
       idUsuario: userLogged.id,
-      valorVoto: SelectedCard?.content
+      valorVoto: result?.content
     }
 
     try {
@@ -375,7 +393,7 @@ function PlanningPokerRoom() {
         let result = { index: isc, content: sc }
         setSelectedCard(result)
 
-        inserirVoto();
+        inserirVoto(result);
       }
     });
   }
@@ -442,11 +460,15 @@ function PlanningPokerRoom() {
       if(result.isConfirmed) {
         setItemCurrentVote(currentVote);
 
+        setItemIsFineshed(false);
+        
         setInicialStateVote(currentVote);
 
         buscarNumVotosPorIdTask(currentVote?.id);
 
-       changeStatusVotacaoItem('ATUAL', currentVote);
+        changeStatusVotacaoItem('ATUAL', currentVote, false);
+
+        
       }
     });
 
@@ -459,16 +481,20 @@ function PlanningPokerRoom() {
       setColorVote('#F70000')
       setChecked(true);
    
+      setItemIsFineshed(true);
+
       setTimeout(() => {
         buscarInfoTaskPorId(currentVote?.id);
         getValorFinalTaskPorId(currentVote?.id);
-      }, 300)
-      
+      }, 300);
+
     } else {
       setVote('Votação em andamento');
       setColorVote('#00B81C');
       setChecked(false);
 
+      setItemIsFineshed(false);
+      setPersistenceFinalValue(null);
       setInfoTask(null);
     }
   }
@@ -490,7 +516,10 @@ function PlanningPokerRoom() {
       const res = await taskService.setValorFinalPorIdTask(ItemCurrentVote?.id, FinalValueTask);
 
       setFinalValueTask('');
-      console.log(res.data)
+
+      setTimeout(() => {
+        getValorFinalTaskPorId(ItemCurrentVote?.id);
+      }, 500)
     } catch(e) {
       console.log(e)
     }
@@ -625,46 +654,48 @@ function PlanningPokerRoom() {
                     flex: 0,
                   }}
                 >
-                  {
-                  CardsList.map((item, index) => (
-                    <>
-                      <Card
-                        onClick={(e) =>
-                          handleSelectedCard(index, e.currentTarget.innerText)
-                        }
-                        style={{
-                          display: 'flex',
-                          flex: 1,
-                          margin: '2% 1% 2% 1%',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <Typography
-                          style={{ padding: '.5%', textAlign: 'center' }}
+                  {!!ItemCurrentVote && (
+                    CardsList.map((item, index) => (
+                      <>
+                        <Card
+                          onClick={(e) =>
+                            handleSelectedCard(index, e.currentTarget.innerText)
+                          }
+                          style={{
+                            display: 'flex',
+                            flex: 1,
+                            margin: '2% 1% 2% 1%',
+                            cursor: 'pointer'
+                          }}
                         >
-                          {item}
-                        </Typography>
-                      </Card>
-                      {index === 2 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 5 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 8 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 11 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {/* {index === 10 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 11 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )} */}
-                    </>
-                  ))}
+                          <Typography
+                            style={{ padding: '.5%', textAlign: 'center' }}
+                          >
+                            {item}
+                          </Typography>
+                        </Card>
+                        {index === 2 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 5 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 8 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 11 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {/* {index === 10 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 11 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )} */}
+                      </>
+                    ))
+                  )
+                  }
                 </div>
                 }
                 {/* </div> */}
@@ -783,7 +814,6 @@ function PlanningPokerRoom() {
                     >
                      Valor Final
                     </Typography>
-                    
                     {PersistenceFinalValue}
                   </Grid>
                 </Grid>
@@ -913,7 +943,7 @@ function PlanningPokerRoom() {
                 >
                   {!!FocusItemStory ? (
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      {ItemCurrentVote?.status === 'FINALIZADO' && userLogged?.tipoUsuario == "SM" ? (
+                      {!!(ItemIsFinished && userLogged?.tipoUsuario == "SM") && (
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                           <Input
                             placeholder="Defina o valor final deste item"
@@ -946,42 +976,44 @@ function PlanningPokerRoom() {
                             />
                           </AddTaskIcon> 
                       </div>
-                      ) : ( <></> )
+                      ) 
                       
                       }
 
-                      {!!FocusItemAddNewStory ? (
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <Input
-                            placeholder="Nome da história"
-                            value={NewStory}
-                            onMouseLeave={() => handleFocusItem(5)}
-                            onChange={(e) => setNewStory(e.target.value)}
-                            size="small"
-                            style={{
-                              fontSize: '14px',
-                              fontFamily: 'Segoe UI',
-                              width: '50%',
-                              height: '20px',
-                              border: '1px solid'.concat(Colors.LigthGray),
-                              padding: '3%',
-                              borderRadius: '5px',
-                            }}
-                          ></Input>
-                          <IconButton
-                            color="primary"
-                            style={{
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              width: '10%',
-                            }}
-                          > 
-                          <ControlPointIcon
-                              style={{ width: '30px', height: '30px' }}
-                              // onMouseEnter={() => handleFocusItem(4)} adicionar a lista de historias
-                            />
-                          </IconButton> 
-                      </div>
+                      {
+                      userLogged?.tipoUsuario === 'SM' ? (
+                        !!FocusItemAddNewStory ? (
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                              <Input
+                                placeholder="Nome da história"
+                                value={NewStory}
+                                onMouseLeave={() => handleFocusItem(5)}
+                                onChange={(e) => setNewStory(e.target.value)}
+                                size="small"
+                                style={{
+                                  fontSize: '14px',
+                                  fontFamily: 'Segoe UI',
+                                  width: '50%',
+                                  height: '20px',
+                                  border: '1px solid'.concat(Colors.LigthGray),
+                                  padding: '3%',
+                                  borderRadius: '5px',
+                                }}
+                              ></Input>
+                              <IconButton
+                                color="primary"
+                                style={{
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  width: '10%',
+                                }}
+                              >
+                                <ControlPointIcon
+                                  style={{ width: '30px', height: '30px' }}
+                                // onMouseEnter={() => handleFocusItem(4)} adicionar a lista de historias
+                                />
+                              </IconButton>
+                        </div>
                       ) : (
                         <div
                           style={{
@@ -1006,7 +1038,9 @@ function PlanningPokerRoom() {
                           </IconButton>
                           }
                         </div>
-                      )}
+                       )
+                      ) : (<></>)
+                      } 
 
                       <div
                         style={{
@@ -1365,12 +1399,12 @@ function PlanningPokerRoom() {
 
                             <Grid item xs={3}>
                                 {
-                                  ItemCurrentVote?.status === 'FINALIZADO' && 
+                                  !!ItemIsFinished && (
                                     <ValorVoto
                                       idTask={ItemCurrentVote?.id}
                                       idUser={user?.id}
                                     />
-                                  
+                                  ) 
                                 }
                             </Grid>
                           </Grid>

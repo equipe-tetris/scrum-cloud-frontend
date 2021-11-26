@@ -9,8 +9,8 @@ export const taskService = {
         return axios.get(endpoint);
     },
 
-    async mudarStatusTaskPorId(statusTask: string, idTask: number) {
-        const endpoint = `${apiUrl}/mudarStatusTaskPorId?statusTask=${statusTask}&idTask=${idTask}`;
+    async mudarStatusTaskPorId(statusTask: string, idTask: number, permitir: boolean) {
+        const endpoint = `${apiUrl}/mudarStatusTaskPorId?statusTask=${statusTask}&idTask=${idTask}&permitir=${permitir}`;
         return axios.post(endpoint);
     },
 
@@ -25,7 +25,7 @@ export const taskService = {
     },
 
     async getValorFinalTaskPorId(idTask: number) {
-        const endpoint = `${apiUrl}/getValorFinalTaskPorId/${idTask}`;
+        const endpoint = `${apiUrl}/buscarValorFinalPorIdTask/${idTask}`;
         return axios.get(endpoint);
     },
 
