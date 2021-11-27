@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, Fragment } from 'react'
+import React, { useState, useCallback, useEffect, Fragment, useRef } from 'react'
 import {
   Card,
   SvgIcon,
@@ -45,12 +45,11 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import FlagIcon from '@mui/icons-material/Flag' // current history
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined'
+import ChatIcon from '@mui/icons-material/Chat';
 
-import './PlanningPokerRoom.css'
+
 import { FormatDate } from '../../utils/DateUtil'
 import { Colors } from '../../constants/Colors'
-
-import Logo from '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
 import API from '../../config/api'
 
 import { authService } from '../../services/auth.service'
@@ -59,7 +58,9 @@ import { planningService } from '../../services/planning.service'
 import { SalaPlanning } from '../../models/SalaPlanning'
 import { border, width } from '@mui/system'
 import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants'
+import { useHookWithRefCallback } from '../../utils/useHookWithRefCallback'
 
+import './PlanningPokerRoom.css'
 const useStyles = {
   root: {
     display: 'flex',
@@ -81,6 +82,7 @@ const useStyles = {
   textFields: {},
   inputError: {},
   submit: {},
+  ubdr2: { border: '1px solid rgb(204, 0, 0)'},
 }
 
 function PlanningPokerRoom() {
@@ -102,6 +104,7 @@ function PlanningPokerRoom() {
   const [FocusItemStory, setFocusItemStory] = React.useState(true)
   const [FocusItemUsers, setFocusItemUsers] = React.useState(false)
   const [FocusItemShare, setFocusItemShare] = React.useState(false)
+  const [FocusItemChat, setFocusItemChat] = React.useState(false)
   const [FocusItemAddNewStory, setFocusItemAddNewStory] = React.useState(false)
   const [TextTooltip, setTextTooltip] = React.useState('Copiar texto')
   const [ClipboardText, setClipboardText] = React.useState(null)
@@ -111,6 +114,14 @@ function PlanningPokerRoom() {
   const [CheckedEndHistory, setCheckedEndHistory] = React.useState(false)
   const [HistoryList, setHistoryList] = React.useState([])
   const [SelectedCard, setSelectedCard] = React.useState({})
+  const [VoteCounter, setVoteCounter] = React.useState(0)
+  const teste =  '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
+
+  useEffect( () =>
+  {
+      if(FocusItemChat === true)
+      { handleOpenChat()}
+  }, [ FocusItemChat ] )
 
   const history = useHistory()
   let crypto = require('crypto')
@@ -163,6 +174,28 @@ function PlanningPokerRoom() {
     }
   }
 
+  const handleIncrement = () => {
+    setVoteCounter(VoteCounter + 1)
+  }
+
+  const handleOpenChat = () => {
+    var t = document.getElementById('OW')
+  
+    var chatango = document.createElement('script');
+    //chatango.classList.replace('ubdr', 'border-color:#20c0c8;')
+    chatango.setAttribute('type','text/javascript');
+        chatango.setAttribute('id','cid0020000296958107455');
+        chatango.setAttribute('data-cfasync','false');
+        chatango.setAttribute('async','true');
+        chatango.setAttribute('src','http://st.chatango.com/js/gz/emb.js');
+        chatango.setAttribute('style','width: 400px;height: 450px;');
+        chatango.setAttribute('class','RonaldoClass');
+        chatango.innerHTML = '{"handle":"scrumcloud","arch":"js","styles":{"a":"20c0c8","b":100,"c":"FFFFFF","d":"FFFFFF","k":"20c0c8","m":"CC0000","n":"FFFFFF","p":"10","q":"20c0c8","r":100,"fwtickm":1}}';
+       
+        t.appendChild(chatango);
+  }
+
+
   const handleChange = (event) => {
     setVote('Votação finalizada')
     setColorVote('#F70000')
@@ -209,12 +242,16 @@ function PlanningPokerRoom() {
         setFocusItemUsers(true)
         setFocusItemStory(false)
         setFocusItemShare(false)
+        setFocusItemChat(false)
+
         break
 
       case 3:
         setFocusItemShare(true)
         setFocusItemStory(false)
         setFocusItemUsers(false)
+        setFocusItemChat(false)
+
         break
       case 4:
         setFocusItemAddNewStory(true)
@@ -224,10 +261,17 @@ function PlanningPokerRoom() {
         console.log('fechei')
         setFocusItemAddNewStory(false)
         break
+      case 6:
+        setFocusItemChat(true)
+        setFocusItemShare(false)
+        setFocusItemStory(false)
+        setFocusItemUsers(false)
+        break
     }
   }
 
   function handleSelectedCard(isc, sc) {
+    handleIncrement()
     // let result = Object.create(isc + sc)
     let result = { index: isc, content: sc }
     setSelectedCard(result)
@@ -298,8 +342,8 @@ function PlanningPokerRoom() {
   }, [])
 
   useEffect(() => {
-    console.log(SelectedCard)
-  }, [SelectedCard])
+    console.log(VoteCounter)
+  }, [SelectedCard, VoteCounter])
 
   // function ConverterCards() {
   //   console.log(SessionList)
@@ -391,7 +435,7 @@ function PlanningPokerRoom() {
                 {/* <div style={{ width: '60%' }}> */}
                 <Divider
                   style={{
-                    width: '100%',
+                    width: '97%',
                     fontFamily: 'Segoe UI',
                     margin: '0 0 2% 2%',
                     fontWeight: 'bold',
@@ -399,30 +443,55 @@ function PlanningPokerRoom() {
                 >
                   Votos
                 </Divider>
+                <div style={{display: 'flex', justifyContent: 'center', width: '100%', alignItems: 'center'}}>
+                  <Card style={{width: '15%', height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>                        <img style={{width: '100px', height: '100px'}} src={'https://i.imgur.com/txEOup1.png'}></img>
+</Card>
                 <Card
                   style={{
-                    width: '20%',
+                    width: '22%',
+                    height: '220px',
                     textAlign: 'center',
                     fontFamily: 'Segoe UI',
-                    margin: '0 0 1% 2%',
+                    margin: '0 2% 1% 2%',
                     padding: '1%',
-                    height: '200px',
                     border: '1px solid #000000',
                   }}
                 >
-                  {Object.values(SelectedCard).toString().slice(2).length <= 6
-                    ? Object.values(SelectedCard).toString().slice(2)
-                    : Object.values(SelectedCard).toString().slice(3)}
+                  {Object.values(SelectedCard).toString() !== '' ? (
+                    <Typography
+                      style={{
+                        fontFamily: 'Segoe UI',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                      }}
+                    >
+                      {Object.values(SelectedCard).toString().slice(2).length <=
+                      6
+                        ? Object.values(SelectedCard).toString().slice(2)
+                        : Object.values(SelectedCard).toString().slice(3)}
+                    </Typography>
+                  ) : (
+                    <Typography style={{fontSize: '14px'}}>Not selected</Typography>
+                  )}
+
                   <Card
                     style={{
-                      marginTop: '70%',
+                      marginTop: '160px',
                       fontFamily: 'Segoe UI',
                       fontWeight: 'bold',
+                      fontSize: '14px',
+                      boxShadow: 'none',
                     }}
                   >
                     Nome do usuário
                   </Card>
                 </Card>
+
+                <Card style={{width: '15%', height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>                        <img style={{width: '100px', height: '100px'}} src={'https://i.imgur.com/txEOup1.png'}></img>
+</Card>
+
+                </div>
+
                 <Divider
                   style={{
                     width: '100%',
@@ -431,60 +500,63 @@ function PlanningPokerRoom() {
                     fontWeight: 'bold',
                   }}
                 >
-                  {!!checked ? '' : 'Selecione um card' }
-                  
+                  {!!checked ? '' : 'Selecione um card'}
                 </Divider>
 
-                {!checked && 
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    margin: '2% 1% 2% 1%',
-                    flexWrap: 'wrap',
-                    flex: 0,
-                  }}
-                >
-                  {CardsList.map((item, index) => (
-                    <>
-                      <Card
-                        onClick={(e) =>
-                          handleSelectedCard(index, e.currentTarget.innerText)
-                        }
-                        style={{
-                          display: 'flex',
-                          flex: 1,
-                          margin: '2% 1% 2% 1%',
-                        }}
-                      >
-                        <Typography
-                          style={{ padding: '.5%', textAlign: 'center' }}
+                {!checked && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      margin: '2% 1% 2% 1%',
+                      flexWrap: 'wrap',
+                      flex: 0,
+                    }}
+                  >
+                    {CardsList.map((item, index) => (
+                      <>
+                        <Card
+                          // onFocus={}
+                          onClick={(e) =>
+                            handleSelectedCard(index, e.currentTarget.innerText)
+                          }
+                          style={{
+                            display: 'flex',
+                            flex: 1,
+                            margin: '1% 1% 1% 1%',
+                            justifyContent: 'center',
+                            border: '1px solid'.concat(Colors.Gray),
+                            borderBottom: '1px solid'.concat(Colors.Primary)
+                          }}
                         >
-                          {item.name}
-                        </Typography>
-                      </Card>
-                      {index === 2 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 5 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 8 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 11 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {/* {index === 10 && (
+                          <Typography
+                            style={{ padding: '5%' }}
+                          >
+                            {item.name}
+                          </Typography>
+                        </Card>
+                        {index === 2 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 5 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 8 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 11 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {/* {index === 10 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )}
                       {index === 11 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )} */}
-                    </>
-                  ))}
-                </div>
-                }
+                      </>
+                    ))}
+                  </div>
+                )}
                 {/* </div> */}
               </Grid>
               <Grid item xs={5}>
@@ -711,6 +783,38 @@ function PlanningPokerRoom() {
                       Compartilhar
                     </Typography>
                   </Card>
+
+                  <Card
+                    onClick={() => handleFocusItem(6)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '33.34%',
+                      flexDirection: 'row',
+                      padding: '1.5%',
+                      boxShadow: 'none',
+                      border:
+                        !!FocusItemChat && '1px solid'.concat(Colors.LigthGray),
+                      borderBottom: !!FocusItemChat
+                        ? 'none'
+                        : '1px solid'.concat(Colors.LigthGray),
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
+                    }}
+                  >
+                    <ChatIcon style={{ width: '15px', height: '15px' }} />
+                    <Typography
+                      onClick={() => handleFocusItem(6)}
+                      style={{
+                        fontWeight: 'bold',
+                        marginLeft: '5px',
+                        fontSize: '13px',
+                      }}
+                    >
+                      Chat
+                    </Typography>
+                  </Card>
                 </div>
                 <div
                   style={{
@@ -767,20 +871,20 @@ function PlanningPokerRoom() {
                             marginLeft: '10%',
                           }}
                         >
-                          {!checked &&
-                          <IconButton
-                            color="primary"
-                            style={{
-                              justifyContent: 'center',
-                              width: '10%',
-                            }}
-                          >
-                            <ControlPointIcon
-                              style={{ width: '30px', height: '30px' }}
-                              onMouseEnter={() => handleFocusItem(4)}
-                            />
-                          </IconButton>
-                          }
+                          {!checked && (
+                            <IconButton
+                              color="primary"
+                              style={{
+                                justifyContent: 'center',
+                                width: '10%',
+                              }}
+                            >
+                              <ControlPointIcon
+                                style={{ width: '30px', height: '30px' }}
+                                onMouseEnter={() => handleFocusItem(4)}
+                              />
+                            </IconButton>
+                          )}
                         </div>
                       )}
 
@@ -1013,6 +1117,26 @@ function PlanningPokerRoom() {
                           <ContentCopyIcon onClick={() => copySomething()} />
                         </Tooltip>
                       </div>
+                    </Card>
+                  )}
+
+                  {!!FocusItemChat && (
+                    <Card
+                      style={{
+                        display: 'flex',
+                        fontFamily: 'Segoe UI',
+                        width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        boxShadow: 'none',
+                      }}
+                      
+                    >
+                      
+                       <div style={{height: '100%', width: '400px', borderColor: '#20c0c8',}}id="OW" > </div>
+                                       
+                     
                     </Card>
                   )}
                 </div>
