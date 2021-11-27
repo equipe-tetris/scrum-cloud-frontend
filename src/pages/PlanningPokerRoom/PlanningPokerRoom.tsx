@@ -116,6 +116,7 @@ function PlanningPokerRoom() {
   const [SelectedCard, setSelectedCard] = React.useState({})
   const [VoteCounter, setVoteCounter] = React.useState(0)
   const teste =  '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
+  const chatango = document.createElement('script');
 
   useEffect( () =>
   {
@@ -179,9 +180,8 @@ function PlanningPokerRoom() {
   }
 
   const handleOpenChat = () => {
-    var t = document.getElementById('OW')
-  
-    var chatango = document.createElement('script');
+    let t = document.getElementById('OW')
+
     //chatango.classList.replace('ubdr', 'border-color:#20c0c8;')
     chatango.setAttribute('type','text/javascript');
         chatango.setAttribute('id','cid0020000296958107455');
@@ -236,6 +236,8 @@ function PlanningPokerRoom() {
         setFocusItemStory(true)
         setFocusItemUsers(false)
         setFocusItemShare(false)
+        setFocusItemChat(false)
+
         break
 
       case 2:
@@ -256,10 +258,13 @@ function PlanningPokerRoom() {
       case 4:
         setFocusItemAddNewStory(true)
         console.log('abri')
+        // t.removeChild(chatango);
+
         break
       case 5:
         console.log('fechei')
         setFocusItemAddNewStory(false)
+        // t.removeChild(chatango);
         break
       case 6:
         setFocusItemChat(true)
