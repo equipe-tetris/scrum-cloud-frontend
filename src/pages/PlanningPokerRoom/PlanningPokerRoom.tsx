@@ -152,6 +152,7 @@ function PlanningPokerRoom() {
   const [FinalValueTask, setFinalValueTask] = useState('');
   const [PersistenceFinalValue, setPersistenceFinalValue] = useState('');
   const [ItemIsFinished, setItemIsFineshed] = useState(false);
+  const [ItemSelectByDev, setItemSelectedByDev] = useState(false);
 
   const history = useHistory()
   let crypto = require('crypto')
@@ -292,8 +293,7 @@ function PlanningPokerRoom() {
   const buscarTaskAtualParaVotacaoPorIdSala = async() => {
     try {
       const res = await taskService.buscarTaskAtualParaVotacaoPorIdSala(idNumber);
-
-     setItemCurrentVote(res.data);
+      setItemCurrentVote(res.data);
     } catch(e) {
       console.log(e)
     }
@@ -390,6 +390,9 @@ function PlanningPokerRoom() {
       confirmButtonText: 'OK'
     }).then((result) => {
       if(result.isConfirmed) {
+        if(sc === '½') {
+          sc = '0.5'
+        }
         let result = { index: isc, content: sc }
         setSelectedCard(result)
 
@@ -459,20 +462,19 @@ function PlanningPokerRoom() {
     }).then((result) => {
       if(result.isConfirmed) {
         setItemCurrentVote(currentVote);
-
         setItemIsFineshed(false);
-        
         setInicialStateVote(currentVote);
-
         buscarNumVotosPorIdTask(currentVote?.id);
-
         changeStatusVotacaoItem('ATUAL', currentVote, false);
 
         
+        if(currentVote?.status === 'FINALIZADO') {
+          setItemSelectedByDev(true);
+        } else {
+          setItemSelectedByDev(false);
+        }
       }
     });
-
-   
   }
 
   const setInicialStateVote = (currentVote) => {
