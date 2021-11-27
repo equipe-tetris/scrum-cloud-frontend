@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect, Fragment } from 'react'
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  Fragment,
+  useRef,
+} from 'react'
 import {
   Card,
   SvgIcon,
@@ -45,10 +51,12 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import FlagIcon from '@mui/icons-material/Flag' // current history
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined'
+import ChatIcon from '@mui/icons-material/Chat'
 
-import './PlanningPokerRoom.css'
 import { FormatDate } from '../../utils/DateUtil'
 import { Colors } from '../../constants/Colors'
+// import Swal from 'sweetalert2'
+// import withReactContent from 'sweetalert2-react-content'
 
 import Logo from '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
 import API from '../../config/api'
@@ -60,26 +68,15 @@ import { SalaPlanning } from '../../models/SalaPlanning'
 import { border, width } from '@mui/system'
 import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants'
 import { Metrica } from '../../constants/Metrica'
+import { useHookWithRefCallback } from '../../utils/useHookWithRefCallback'
+import './PlanningPokerRoom.css'
 import { taskService } from '../../services/task.service'
 import { votacaoService } from '../../services/votacao.service'
 import { createTypeReferenceDirectiveResolutionCache } from 'typescript'
 import StatusVotacao from '../../components/StatusVotacao/StatusVotacao'
-
-
-interface InfoTask {
-  idTask?: number;
-  votosString?: [];
-  votosNumber?: [];
-  mediaVotosNumericos?: number;
-  numVotos?: number;
-  moda?: number;
-}
-
-interface CurrentVote {
-  id?: number;
-  conteudo?: string;
-  finalizado?: boolean;
-}
+// import ValorVoto from '../../components/ValorVotoIntegrante/ValorVoto'
+import { FormatColorResetRounded } from '@mui/icons-material'
+// const MySwal = withReactContent(Swal);
 
 const useStyles = {
   root: {
@@ -102,26 +99,49 @@ const useStyles = {
   textFields: {},
   inputError: {},
   submit: {},
+  ubdr2: { border: '1px solid rgb(204, 0, 0)' },
+}
+
+// const MySwal = withReactContent(Swal);
+
+interface InfoTask {
+  idTask?: number
+  votosString?: []
+  votosNumber?: []
+  mediaVotosNumericos?: number
+  numVotos?: number
+  moda?: number
+}
+
+interface CurrentVote {
+  id?: number
+  conteudo?: string
+  status?: string
 }
 
 function PlanningPokerRoom() {
   const userLogged = authService.getDataLoggedUser()
 
-  const { id } = useParams<{id?: string}>();
-  const idNumber = Number(id);
+  const { id } = useParams<{ id?: string }>()
+  const idNumber = Number(id)
 
   const [QuantidadeHistoria, setQuantidadeHistoria] = React.useState(1)
   const [Historias, setHistorias] = React.useState('')
+  const [equipesItemCombo, setEquipesItemCombo] = React.useState([])
 
   const [SessionList, setSessionList] = React.useState([])
 
+  const [nomeSala, setNomeSala] = React.useState('')
+  // const [scrumMaster, setScrumMaster] = React.useState(userLogged.id);
+  const [metricaSala, setMetricaSala] = React.useState('')
   const [equipe, setEquipe] = React.useState(0)
   const [checked, setChecked] = React.useState(false)
-  const [Vote, setVote] = React.useState('')
-  const [ColorVote, setColorVote] = React.useState('')
+  const [Vote, setVote] = React.useState('Votação em andamento')
+  const [ColorVote, setColorVote] = React.useState('#00B81C')
   const [FocusItemStory, setFocusItemStory] = React.useState(true)
   const [FocusItemUsers, setFocusItemUsers] = React.useState(false)
   const [FocusItemShare, setFocusItemShare] = React.useState(false)
+  const [FocusItemChat, setFocusItemChat] = React.useState(false)
   const [FocusItemAddNewStory, setFocusItemAddNewStory] = React.useState(false)
   const [TextTooltip, setTextTooltip] = React.useState('Copiar texto')
   const [ClipboardText, setClipboardText] = React.useState(null)
@@ -129,61 +149,142 @@ function PlanningPokerRoom() {
   const [NewStory, setNewStory] = React.useState('')
   const [CurrentClipboardText, setCurrentClipboardText] = React.useState('')
   const [CheckedEndHistory, setCheckedEndHistory] = React.useState(false)
+  const [VoteCounter, setVoteCounter] = React.useState(0)
+  const chatango = document.createElement('script')
   const [HistoryList, setHistoryList] = React.useState([])
   const [SelectedCard, setSelectedCard] = React.useState<{content?: string, index?: number}>({});
-  const [salaPlanning, setSalaPlanning] = useState({});
+
+  const [salaPlanning, setSalaPlanning] = useState({})
   const [metrica, setMetrica] = useState('');
-  const [CardsList, setCardList] = useState([]);
-  const [ListTask, setListTask] = useState([]);
-  const [ListIntegrantes, setListIntegrantes] = useState([]);
-  const [statusVotacaoTask, setStatusVotacaoTask] = useState([]);
-  const [infoTask, setInfoTask] = useState<InfoTask>({});
-  const [ItemCurrentVote, setItemCurrentVote] = useState<CurrentVote>({});
-  const [StatusItemVote, setStatusItemVote] = useState(false);
-  const [NumberVoteTask, setNumberVoteTask] = useState(0);
+
+  const [CardsList, setCardList] = useState([])
+  const [ListTask, setListTask] = useState([])
+  const [ListIntegrantes, setListIntegrantes] = useState([])
+  const [statusVotacaoTask, setStatusVotacaoTask] = useState([])
+  const [infoTask, setInfoTask] = useState<InfoTask>({})
+  const [ItemCurrentVote, setItemCurrentVote] = useState<CurrentVote>({})
+  const [StatusItemVote, setStatusItemVote] = useState('ABERTA')
+  const [NumberVoteTask, setNumberVoteTask] = useState(0)
+  const [FinalValueTask, setFinalValueTask] = useState('')
+  const [PersistenceFinalValue, setPersistenceFinalValue] = useState('')
+  const [ItemIsFinished, setItemIsFineshed] = useState(false)
+
+  useEffect(() => {
+    if (FocusItemChat === true) {
+      handleOpenChat()
+    }
+  }, [FocusItemChat])
+
+  const handleOpenChat = () => {
+    let t = document.getElementById('OW')
+
+    //chatango.classList.replace('ubdr', 'border-color:#20c0c8;')
+    chatango.setAttribute('type', 'text/javascript')
+    chatango.setAttribute('id', 'cid0020000296958107455')
+    chatango.setAttribute('data-cfasync', 'false')
+    chatango.setAttribute('async', 'true')
+    chatango.setAttribute('src', 'http://st.chatango.com/js/gz/emb.js')
+    chatango.setAttribute('style', 'width: 400px;height: 450px;')
+    chatango.setAttribute('class', 'RonaldoClass')
+    chatango.innerHTML =
+      '{"handle":"scrumcloud","arch":"js","styles":{"a":"20c0c8","b":100,"c":"FFFFFF","d":"FFFFFF","k":"20c0c8","m":"CC0000","n":"FFFFFF","p":"10","q":"20c0c8","r":100,"fwtickm":1}}'
+
+    t.appendChild(chatango)
+  }
+
 
   const history = useHistory()
   let crypto = require('crypto')
 
+  //opções que virão da api de acordo com a técnica aplicada na criação da sala
+  // const CardsList = [
+  //   { index: 0, name: 'Card 1' },
+  //   { index: 1, name: 'Card 2' },
+  //   { index: 2, name: 'Card 3' },
+  //   { index: 3, name: 'Card 4' },
+  //   { index: 4, name: 'Card 5' },
+  //   { index: 5, name: 'Card 6' },
+  //   { index: 6, name: 'Card 7' },
+  //   { index: 7, name: 'Card 8' },
+  //   { index: 8, name: 'Card 9' },
+  //   { index: 9, name: 'Card 10' },
+  //   { index: 10, name: 'Card 11' },
+  //   { index: 11, name: 'Card 12' },
+  //   { index: 12, name: 'Card 13' },
+  //   { index: 13, name: 'Card 14' },
+  // ]
 
   const handleChangeEndVote = (event) => {
     if(event.target.checked) {
-      setVote('Votação finalizada')
-      setColorVote('#F70000')
-      setChecked(true);
-      changeStatusVotacaoItem(true);
+      // MySwal.fire({
+      //   title: <p>Finalizar votação deste item? </p>,
+      //   showConfirmButton: true,
+      //   showCancelButton: true,
+      //   cancelButtonText: 'Cancelar',
+      //   confirmButtonText: 'OK'
+      // }).then((result) => {
+      //   if(result.isConfirmed) {
+      //     setVote('Votação finalizada')
+      //     setColorVote('#F70000')
+      //     setChecked(true);
+      //     changeStatusVotacaoItem('FINALIZADO', ItemCurrentVote, true);
+    
+      //     buscarInfoTaskPorId(ItemCurrentVote?.id);
+            
+      //     // getValorFinalTaskPorId(ItemCurrentVote?.id);
+            
+      //     setItemIsFineshed(true);
+          
+      //   }
+      // });
+      
     } else {
-      setVote('Votação em andamento');
-      setColorVote('#00B81C');
-      setChecked(false);
-      changeStatusVotacaoItem(false);
-    }
+    //   MySwal.fire({
+    //     title: <p>Colocar este novamente para votação? </p>,
+    //     showConfirmButton: true,
+    //     showCancelButton: true,
+    //     cancelButtonText: 'Cancelar',
+    //     confirmButtonText: 'OK'
+    //   }).then((result) => {
+    //     if(result.isConfirmed) {
+    //       setVote('Votação em andamento');
+    //       setColorVote('#00B81C');
+    //       setChecked(false);
+    //       changeStatusVotacaoItem('ATUAL', ItemCurrentVote, true);
+    //       setInfoTask(null);
+
+    //       setPersistenceFinalValue(null);
+
+    //       setItemIsFineshed(false);
+
+    //       setTimeout(() => {
+    //         buscarTasksPorIdSala();
+    //       }, 700)
+    //     }
+    //   });
+    // }
     
-    
-    setTimeout(() => {
-      buscarTasksPorIdSala();
-    }, 1000)
   }
+}
 
-  const changeStatusVotacaoItem = async(statusTask: boolean) => {
-
+  const changeStatusVotacaoItem = async(statusTask: string, currentVote: CurrentVote, permitir: boolean) => {
     const statusTaskToSend = statusTask;
-    const idTaskToSend = ItemCurrentVote?.id;
+    const idTaskToSend = currentVote?.id;
+    const permitirToSend = permitir;
 
     try {
-      const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend);
-
+      // const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend, permitirToSend);
     } catch(e) {
       console.log(e);
     }
   }
 
-  const inserirVoto = async() => {
+  const inserirVoto = async(result) => {
 
     const votoToSend = {
       idTask: ItemCurrentVote?.id,
       idUsuario: userLogged.id,
-      valorVoto: SelectedCard?.content.toLowerCase()
+      valorVoto: result?.content
     }
 
     try {
@@ -193,6 +294,110 @@ function PlanningPokerRoom() {
     } catch(e) {
       console.log(e)
     }
+  }
+
+  const buscarTasksPorIdSala = async() => {
+    try {
+      const res = await taskService.buscarTasksPorIdSala(idNumber);
+
+      setListTask(res.data)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  const setTypeCards = () => {
+    if(metrica == 'PADRAO') {
+      setCardList(Metrica.Padrao)
+    } else if(metrica == 'FIBONACCI'){
+      setCardList(Metrica.Fibonacci)
+    } else {
+      setCardList(Metrica.Relativa)
+    }
+      
+  }
+  const buscarInfoTaskPorId = async(id: number) => {
+    try {
+      const res = await votacaoService.buscarInfoTaskPorId(id);
+
+      setInfoTask(res.data);
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  const buscarIntegrantesSalaPorId = async() => {
+    try {
+      const res = await planningService.buscarIntegrantesEquipePorIdSala(idNumber);
+
+      setListIntegrantes(res.data)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  
+  useEffect(() => {
+    setTypeCards();
+  }, [Metrica])
+
+  useEffect(() => {
+    buscarDadosSalaPorId();
+    buscarIntegrantesSalaPorId();
+  }, [])
+
+  useEffect(() => {
+    setInterval(() => {
+       if(userLogged?.tipoUsuario === 'SM') {
+         buscarTasksPorIdSala();
+       } else {
+         buscarTasksPorIdSala();
+        //  buscarTaskAtualParaVotacaoPorIdSala();
+       }
+     }, 3000)
+   }, [])
+
+
+
+  //cards selecionados pelos participantes da sala
+  const CardSelect = [
+    { index: 0, name: 'Card 1' },
+    { index: 1, name: 'Card 2' },
+    { index: 2, name: 'Card 3' },
+  ]
+
+  const criarSalaPlanning = () => {
+    const salaPlanning = {
+      nome: nomeSala,
+      // scrumMaster: scrumMaster,
+      metricaSala: metricaSala,
+      equipe: equipe,
+    }
+
+    try {
+      const res = planningService.cadastrarSalaPlanning(salaPlanning)
+
+      if (res) {
+        console.log('Sucess!')
+      }
+
+      setNomeSala('')
+      setMetricaSala('')
+      setEquipe(0)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const handleIncrement = () => {
+    setVoteCounter(VoteCounter + 1)
+  }
+
+
+  const handleChange = (event) => {
+    setVote('Votação finalizada')
+    setColorVote('#F70000')
+    setChecked(true)
   }
 
   const handleChangeShowEndedStorys = (event) => {
@@ -223,6 +428,16 @@ function PlanningPokerRoom() {
     }
   }
 
+  // const buscarTaskAtualParaVotacaoPorIdSala = async() => {
+  //   try {
+  //     const res = await taskService.buscarTaskAtualParaVotacaoPorIdSala(idNumber);
+
+  //    setItemCurrentVote(res.data);
+  //   } catch(e) {
+  //     console.log(e)
+  //   }
+  // }
+
   const buscarDadosSalaPorId = async() => {
     try {
       const res = await planningService.buscarDadosSalaPorId(idNumber);
@@ -234,60 +449,7 @@ function PlanningPokerRoom() {
     }
   } 
 
-  const buscarTasksPorIdSala = async() => {
-    try {
-      const res = await taskService.buscarTasksPorIdSala(idNumber);
 
-      setListTask(res.data)
-    } catch(e) {
-      console.log(e)
-    }
-  }
-
-  const setTypeCards = () => {
-    if(metrica == 'PADRAO') {
-      setCardList(Metrica.Padrao)
-    } else if(metrica == 'FIBONACCI'){
-      setCardList(Metrica.Fibonacci)
-    } else {
-      setCardList(Metrica.Relativa)
-    }
-      
-  }
-
-  const buscarInfoTaskPorId = async() => {
-    try {
-      const res = await votacaoService.buscarInfoTaskPorId(1);
-
-      setInfoTask(res.data);
-    } catch(e) {
-      console.log(e)
-    }
-  }
-
-  const buscarIntegrantesSalaPorId = async() => {
-    try {
-      const res = await planningService.buscarIntegrantesEquipePorIdSala(idNumber);
-
-      setListIntegrantes(res.data)
-    } catch(e) {
-      console.log(e)
-    }
-  }
-
-  useEffect(() => {
-    buscarInfoTaskPorId();
-  }, [SelectedCard])
-
-  useEffect(() => {
-    setTypeCards();
-  }, [metrica])
-
-  useEffect(() => {
-    buscarDadosSalaPorId();
-    buscarTasksPorIdSala();
-    buscarIntegrantesSalaPorId();
-  }, [])
 
   function handleFocusItem(Case) {
     switch (Case) {
@@ -295,36 +457,61 @@ function PlanningPokerRoom() {
         setFocusItemStory(true)
         setFocusItemUsers(false)
         setFocusItemShare(false)
+        setFocusItemChat(false)
+
         break
 
       case 2:
         setFocusItemUsers(true)
         setFocusItemStory(false)
         setFocusItemShare(false)
+        setFocusItemChat(false)
+
         break
 
       case 3:
         setFocusItemShare(true)
         setFocusItemStory(false)
         setFocusItemUsers(false)
+        setFocusItemChat(false)
+
         break
       case 4:
         setFocusItemAddNewStory(true)
         console.log('abri')
+        // t.removeChild(chatango);
+
         break
       case 5:
         console.log('fechei')
         setFocusItemAddNewStory(false)
+        // t.removeChild(chatango);
+        break
+      case 6:
+        setFocusItemChat(true)
+        setFocusItemShare(false)
+        setFocusItemStory(false)
+        setFocusItemUsers(false)
         break
     }
   }
 
   function handleSelectedCard(isc, sc) {
     // let result = Object.create(isc + sc)
-    let result = { index: isc, content: sc }
-    setSelectedCard(result)
+    // MySwal.fire({
+    //   title: <p>Confirmar seu voto? </p>,
+    //   showConfirmButton: true,
+    //   showCancelButton: true,
+    //   cancelButtonText: 'Cancelar',
+    //   confirmButtonText: 'OK'
+    // }).then((result) => {
+    //   if(result.isConfirmed) {
+    //     let result = { index: isc, content: sc }
+    //     setSelectedCard(result)
 
-    inserirVoto();
+    //     inserirVoto(result);
+    //   }
+    // });
   }
 
   const handleUserKeyPress = useCallback((event) => {
@@ -343,6 +530,121 @@ function PlanningPokerRoom() {
     }
   }, [])
 
+  const itemClicked = (item: any) => {
+
+    const currentVote: CurrentVote = {
+      id: item?.id,
+      conteudo: item?.conteudo,
+      status: item?.status
+    }
+
+    // MySwal.fire({
+    //   title: <p>Mudar item em votação? </p>,
+    //   showConfirmButton: true,
+    //   showCancelButton: true,
+    //   cancelButtonText: 'Cancelar',
+    //   confirmButtonText: 'OK'
+    // }).then((result) => {
+    //   if(result.isConfirmed) {
+    //     setItemCurrentVote(currentVote);
+
+    //     setItemIsFineshed(false);
+        
+    //     setInicialStateVote(currentVote);
+
+    //     buscarNumVotosPorIdTask(currentVote?.id);
+
+    //     changeStatusVotacaoItem('ATUAL', currentVote, false);
+
+        
+    //   }
+    // });
+
+   
+  }
+
+  const setInicialStateVote = (currentVote) => {
+    if(currentVote?.status === 'FINALIZADO') {
+      setVote('Votação finalizada')
+      setColorVote('#F70000')
+      setChecked(true);
+   
+      setItemIsFineshed(true);
+
+      setTimeout(() => {
+        buscarInfoTaskPorId(currentVote?.id);
+        // getValorFinalTaskPorId(currentVote?.id);
+      }, 300);
+
+    } else {
+      setVote('Votação em andamento');
+      setColorVote('#00B81C');
+      setChecked(false);
+
+      setItemIsFineshed(false);
+      setPersistenceFinalValue(null);
+      setInfoTask(null);
+    }
+  }
+
+  const buscarNumVotosPorIdTask = async(idCurrentTask: number) => {
+    try {
+      const res = await votacaoService.buscarNumVotosPorIdTask(idCurrentTask);
+
+      setNumberVoteTask(res.data);
+
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  // const setValorFinalPorIdTask = async() => {
+
+  //   try {
+  //     const res = await taskService.setValorFinalPorIdTask(ItemCurrentVote?.id, FinalValueTask);
+
+  //     setFinalValueTask('');
+
+  //     setTimeout(() => {
+  //       getValorFinalTaskPorId(ItemCurrentVote?.id);
+  //     }, 500)
+  //   } catch(e) {
+  //     console.log(e)
+  //   }
+  // }
+
+  // const getValorFinalTaskPorId = async(idTask: number) => {
+
+  //   try {
+  //     const res = await taskService.getValorFinalTaskPorId(idTask);
+
+  //    setPersistenceFinalValue(res.data);
+
+  //   } catch(e) {
+  //     console.log(e);
+  //   }
+  // }
+
+  const buscarEquipesComboBox = async () => {
+    try {
+      const res = await teamService.buscarEquipesComboBoxPorUsuario(
+        // userLogged.id,
+        userLogged,
+      )
+
+      setEquipesItemCombo(res.data)
+    } catch (e) {
+      // console.log(e)
+    }
+  }
+
+  const removeTask = (index: number) => {
+    const listAux = [...SessionList]
+
+    listAux.splice(index, 1)
+
+    setSessionList(listAux)
+  }
 
   useEffect(() => {
     Mount()
@@ -367,49 +669,26 @@ function PlanningPokerRoom() {
     }
   }, [handleUserKeyPress])
 
- async function Mount() {
+  useEffect(() => {
+    buscarEquipesComboBox()
+  }, [])
+
+  useEffect(() => {
+    console.log(VoteCounter)
+  }, [SelectedCard, VoteCounter])
+
+  // function ConverterCards() {
+  //   console.log(SessionList)
+  //   if (!!Historias && Historias.length > 0) {
+  //     let a = Historias.split(/\r\n|\r|\n/)
+  //     setSessionList(a)
+  //   }
+  // }
+
+  async function Mount() {
     await Promise.all([getCodeSession(), getClipBoard()])
   }
 
-  const itemClicked = async (item: any) => {
-
-    const currentVote: CurrentVote = {
-      id: item?.id,
-      conteudo: item?.conteudo,
-      finalizado: item?.finalizado
-    }
-
-    setItemCurrentVote(currentVote);
-
-    setInicialStateVote(currentVote);
-
-    buscarNumVotosPorIdTask(currentVote?.id);
-  }
-
-  const setInicialStateVote = (currentVote) => {
-    if(currentVote?.finalizado) {
-      setVote('Votação finalizada')
-      setColorVote('#F70000')
-      setChecked(true);
-    } else {
-      setVote('Votação em andamento');
-      setColorVote('#00B81C');
-      setChecked(false);
-    }
-  }
-
-  const buscarNumVotosPorIdTask = async(idCurrentTask: number) => {
-    try {
-      const res = await votacaoService.buscarNumVotosPorIdTask(idCurrentTask);
-
-      setNumberVoteTask(res.data);
-
-    } catch(e) {
-      console.log(e)
-    }
-  }
-
-  
   return (
     <div className="container-login">
       <CssBaseline />
@@ -423,7 +702,30 @@ function PlanningPokerRoom() {
             alignItems: 'center',
           }}
         >
-         
+          <div
+            style={{
+              display: 'flex',
+              borderBottom: '2px solid rgba(34,36,38,.15)',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+            }}
+          >
+            <Typography style={{ fontWeight: 'bold', fontFamily: 'Segoe UI' }}>
+              Sprint plannig {FormatDate(undefined, 'DD/MM/YYYY')}
+            </Typography>
+            <div style={{ display: 'flex', flexDirection: 'row', flex: 0.22 }}>
+              <Typography
+                style={{
+                  fontWeight: 'bold',
+                  marginRight: '2%',
+                  fontFamily: 'Segoe UI',
+                }}
+              >
+                Nome do usuário | Logout{' '}
+              </Typography>
+              <ExitToAppIcon onClick={() => history.push('/')}></ExitToAppIcon>
+            </div>
+          </div>
           <Card
             style={{ marginTop: '2%', border: '1px solid'.concat(Colors.Gray) }}
           >
@@ -439,39 +741,33 @@ function PlanningPokerRoom() {
             >
               <p style={{ margin: '1% 0 1% 2%', color: '#ffffff' }}> {Vote}</p>
             </div>
-            
-            {
-              userLogged.tipoUsuario === 'SM' && ItemCurrentVote?.id ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginLeft: '1%',
-                  }}
-                >
-                <Switch
-                  checked={checked}
-                  onChange={handleChangeEndVote}
-                  color="primary"
-                ></Switch>
 
-                <Typography
-                  style={{ fontFamily: 'Segoe UI', fontWeight: 'bold' }}
-                >
-                  Finalizar votação deste item
-                </Typography>
-              </div>
-            ) : ( <> </> )
-             
-          }
-            
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginLeft: '1%',
+              }}
+            >
+              <Switch
+                checked={checked}
+                onChange={handleChange}
+                color="primary"
+              ></Switch>
+
+              <Typography
+                style={{ fontFamily: 'Segoe UI', fontWeight: 'bold' }}
+              >
+                Finalização de voto
+              </Typography>
+            </div>
             <Grid container spacing={2}>
               <Grid item xs={7} style={{ marginLeft: 0 }}>
                 {/* <div style={{ width: '60%' }}> */}
                 <Divider
                   style={{
-                    width: '100%',
+                    width: '97%',
                     fontFamily: 'Segoe UI',
                     margin: '0 0 2% 2%',
                     fontWeight: 'bold',
@@ -479,31 +775,89 @@ function PlanningPokerRoom() {
                 >
                   Votos
                 </Divider>
-                <Card
+                <div
                   style={{
-                    width: '20%',
-                    textAlign: 'center',
-                    fontFamily: 'Segoe UI',
-                    margin: '0 0 1% 2%',
-                    padding: '1%',
-                    height: '200px',
-                    border: '1px solid #000000',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    width: '100%',
+                    alignItems: 'center',
                   }}
                 >
-                  Seu voto:
-                  {Object.values(SelectedCard).toString().slice(2).length <= 6
-                    ? Object.values(SelectedCard).toString().slice(2)
-                    : Object.values(SelectedCard).toString().slice(3)}
                   <Card
                     style={{
-                      marginTop: '70%',
-                      fontFamily: 'Segoe UI',
-                      fontWeight: 'bold',
+                      width: '15%',
+                      height: '200px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
-                    {ItemCurrentVote?.conteudo}
+                    {' '}
+                    <img
+                      style={{ width: '100px', height: '100px' }}
+                      src={'https://i.imgur.com/txEOup1.png'}
+                    ></img>
                   </Card>
-                </Card>
+                  <Card
+                    style={{
+                      width: '22%',
+                      height: '220px',
+                      textAlign: 'center',
+                      fontFamily: 'Segoe UI',
+                      margin: '0 2% 1% 2%',
+                      padding: '1%',
+                      border: '1px solid #000000',
+                    }}
+                  >
+                    {Object.values(SelectedCard).toString() !== '' ? (
+                      <Typography
+                        style={{
+                          fontFamily: 'Segoe UI',
+                          fontWeight: 'bold',
+                          fontSize: '14px',
+                        }}
+                      >
+                        {Object.values(SelectedCard).toString().slice(2)
+                          .length <= 6
+                          ? Object.values(SelectedCard).toString().slice(2)
+                          : Object.values(SelectedCard).toString().slice(3)}
+                      </Typography>
+                    ) : (
+                      <Typography style={{ fontSize: '14px' }}>
+                        Not selected
+                      </Typography>
+                    )}
+
+                    <Card
+                      style={{
+                        marginTop: '160px',
+                        fontFamily: 'Segoe UI',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        boxShadow: 'none',
+                      }}
+                    >
+                      Nome do usuário
+                    </Card>
+                  </Card>
+
+                  <Card
+                    style={{
+                      width: '15%',
+                      height: '200px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {' '}
+                    <img
+                      style={{ width: '100px', height: '100px' }}
+                      src={'https://i.imgur.com/txEOup1.png'}
+                    ></img>
+                  </Card>
+                </div>
+
                 <Divider
                   style={{
                     width: '100%',
@@ -512,61 +866,61 @@ function PlanningPokerRoom() {
                     fontWeight: 'bold',
                   }}
                 >
-                  {!!checked ? '' : 'Selecione um card' }
-                  
+                  {!!checked ? '' : 'Selecione um card'}
                 </Divider>
 
-                {!checked && 
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    margin: '2% 1% 2% 1%',
-                    flexWrap: 'wrap',
-                    flex: 0,
-                  }}
-                >
-                  {
-                  CardsList.map((item, index) => (
-                    <>
-                      <Card
-                        onClick={(e) =>
-                          handleSelectedCard(index, e.currentTarget.innerText)
-                        }
-                        style={{
-                          display: 'flex',
-                          flex: 1,
-                          margin: '2% 1% 2% 1%',
-                        }}
-                      >
-                        <Typography
-                          style={{ padding: '.5%', textAlign: 'center' }}
+                {!checked && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      margin: '2% 1% 2% 1%',
+                      flexWrap: 'wrap',
+                      flex: 0,
+                    }}
+                  >
+                    {CardsList.map((item, index) => (
+                      <>
+                        <Card
+                          // onFocus={}
+                          onClick={(e) =>
+                            handleSelectedCard(index, e.currentTarget.innerText)
+                          }
+                          style={{
+                            display: 'flex',
+                            flex: 1,
+                            margin: '1% 1% 1% 1%',
+                            justifyContent: 'center',
+                            border: '1px solid'.concat(Colors.Gray),
+                            borderBottom: '1px solid'.concat(Colors.Primary),
+                          }}
                         >
-                          {item}
-                        </Typography>
-                      </Card>
-                      {index === 2 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 5 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 8 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 11 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {/* {index === 10 && (
+                          <Typography style={{ padding: '5%' }}>
+                            {item.name}
+                          </Typography>
+                        </Card>
+                        {index === 2 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 5 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 8 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {index === 11 && (
+                          <div style={{ flexBasis: '100%', height: 0 }}></div>
+                        )}
+                        {/* {index === 10 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )}
                       {index === 11 && (
                         <div style={{ flexBasis: '100%', height: 0 }}></div>
                       )} */}
-                    </>
-                  ))}
-                </div>
-                }
+                      </>
+                    ))}
+                  </div>
+                )}
                 {/* </div> */}
               </Grid>
               <Grid item xs={5}>
@@ -616,8 +970,29 @@ function PlanningPokerRoom() {
                         color: Colors.Green,
                       }}
                     >
-                      {NumberVoteTask}
+                      0
                     </Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={3}
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <Typography
+                      style={{
+                        fontFamily: 'Segoe UI',
+                        fontWeight: 'bold',
+                        marginLeft: '2%',
+                      }}
+                    >
+                      Min
+                    </Typography>
+                    <MinimizeIcon style={{ color: Colors.Red }} />
                   </Grid>
 
                   <Grid
@@ -637,9 +1012,9 @@ function PlanningPokerRoom() {
                         marginLeft: '2%',
                       }}
                     >
-                      Moda
+                      Máx
                     </Typography>
-                    {infoTask?.moda}
+                    <MinimizeIcon style={{ color: Colors.Orange }} />
                   </Grid>
 
                   <Grid
@@ -661,7 +1036,7 @@ function PlanningPokerRoom() {
                     >
                       Média
                     </Typography>
-                    {infoTask?.mediaVotosNumericos}
+                    <MinimizeIcon style={{ color: Colors.LightBlue }} />
                   </Grid>
                 </Grid>
                 <div
@@ -772,6 +1147,38 @@ function PlanningPokerRoom() {
                       Compartilhar
                     </Typography>
                   </Card>
+
+                  <Card
+                    onClick={() => handleFocusItem(6)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '33.34%',
+                      flexDirection: 'row',
+                      padding: '1.5%',
+                      boxShadow: 'none',
+                      border:
+                        !!FocusItemChat && '1px solid'.concat(Colors.LigthGray),
+                      borderBottom: !!FocusItemChat
+                        ? 'none'
+                        : '1px solid'.concat(Colors.LigthGray),
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
+                    }}
+                  >
+                    <ChatIcon style={{ width: '15px', height: '15px' }} />
+                    <Typography
+                      onClick={() => handleFocusItem(6)}
+                      style={{
+                        fontWeight: 'bold',
+                        marginLeft: '5px',
+                        fontSize: '13px',
+                      }}
+                    >
+                      Chat
+                    </Typography>
+                  </Card>
                 </div>
                 <div
                   style={{
@@ -812,13 +1219,13 @@ function PlanningPokerRoom() {
                               alignItems: 'center',
                               width: '10%',
                             }}
-                          > 
-                          <ControlPointIcon
+                          >
+                            <ControlPointIcon
                               style={{ width: '30px', height: '30px' }}
                               // onMouseEnter={() => handleFocusItem(4)} adicionar a lista de historias
                             />
-                          </IconButton> 
-                      </div>
+                          </IconButton>
+                        </div>
                       ) : (
                         <div
                           style={{
@@ -828,20 +1235,20 @@ function PlanningPokerRoom() {
                             marginLeft: '10%',
                           }}
                         >
-                          {!checked &&
-                          <IconButton
-                            color="primary"
-                            style={{
-                              justifyContent: 'center',
-                              width: '10%',
-                            }}
-                          >
-                            <ControlPointIcon
-                              style={{ width: '30px', height: '30px' }}
-                              onMouseEnter={() => handleFocusItem(4)}
-                            />
-                          </IconButton>
-                          }
+                          {!checked && (
+                            <IconButton
+                              color="primary"
+                              style={{
+                                justifyContent: 'center',
+                                width: '10%',
+                              }}
+                            >
+                              <ControlPointIcon
+                                style={{ width: '30px', height: '30px' }}
+                                onMouseEnter={() => handleFocusItem(4)}
+                              />
+                            </IconButton>
+                          )}
                         </div>
                       )}
 
@@ -877,7 +1284,6 @@ function PlanningPokerRoom() {
                             padding: '10px',
                           }}
                         >
-                        
                           <Grid container spacing={3}>
                             <Grid
                               id="status"
@@ -943,13 +1349,11 @@ function PlanningPokerRoom() {
                         </div>
 
                         <Fragment>
-                          {
-                            ListTask.map((task: any) => (
-                              <Grid
+                          <Grid
                             container
                             spacing={3}
                             style={{ padding: '10px', alignItems: 'center' }}
-                              >
+                          >
                             <Grid
                               id="status"
                               item
@@ -959,23 +1363,9 @@ function PlanningPokerRoom() {
                                 justifyContent: 'center',
                               }}
                             >
-                              {
-                                    task?.finalizado ? (
-                                      <FlagIcon
-                                        style={{ 
-                                          color: Colors.Green, 
-                                          cursor: 'pointer'
-                                        }}
-                                        onClick={(evt) => itemClicked(task)}
-                                      ></FlagIcon>
-                                    ) : (
-                                      <FlagOutlinedIcon 
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={(evt) => itemClicked(task)} 
-                                      />
-                                    ) 
-                              }
-                             
+                              <FlagIcon
+                                style={{ color: Colors.Green }}
+                              ></FlagIcon>
                             </Grid>
                             <Grid
                               id="index"
@@ -983,7 +1373,7 @@ function PlanningPokerRoom() {
                               xs={1}
                               style={{
                                 display: 'flex',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
                               }}
                             >
                               <Typography
@@ -992,7 +1382,7 @@ function PlanningPokerRoom() {
                                   fontSize: '13px',
                                 }}
                               >
-                               {task?.id}
+                                1
                               </Typography>
                             </Grid>
                             <Grid item xs={5}>
@@ -1002,7 +1392,7 @@ function PlanningPokerRoom() {
                                   fontSize: '13px',
                                 }}
                               >
-                               {task?.conteudo}
+                                Nome da história
                               </Typography>
                             </Grid>
                             <Grid
@@ -1018,9 +1408,6 @@ function PlanningPokerRoom() {
                               ></HighlightOffIcon>
                             </Grid>
                           </Grid>
-                            ))
-                          }
-                          
                         </Fragment>
                       </Card>
                     </div>
@@ -1030,139 +1417,17 @@ function PlanningPokerRoom() {
                     <div
                       style={{
                         display: 'flex',
-                        flexDirection: 'row',
-                        width: '100%',
-                        marginLeft: '10%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       }}
                     >
-                     <Card>
-                        <div
-                          style={{
-                            backgroundColor: Colors.LigthGray,
-                            padding: '10px',
-                          }}
-                        >
-                        
-                          <Grid container spacing={3}>
-                           
-                            <Grid
-                              id="index"
-                              item
-                              xs={1}
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <Typography
-                                style={{
-                                  fontFamily: 'Segoe UI',
-                                  fontSize: '13px',
-                                  fontWeight: 'bold',
-                                }}
-                              >
-                                #
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={5}>
-                              <Typography
-                                style={{
-                                  fontFamily: 'Segoe UI',
-                                  fontSize: '13px',
-                                  fontWeight: 'bold',
-                                }}
-                              >
-                                Nome
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={3}>
-                              <Typography
-                                style={{
-                                  fontFamily: 'Segoe UI',
-                                  fontSize: '13px',
-                                  fontWeight: 'bold',
-                                }}
-                              >
-                                Status de voto
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </div>
-
-                        <Fragment>
-                          {
-                            ListIntegrantes.map((user: any) => (
-                            <Grid
-                              container
-                              spacing={3}
-                              style={{ padding: '10px', alignItems: 'center' }}
-                            >
-                            
-                            <Grid
-                              id="index"
-                              item
-                              xs={1}
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <Typography
-                                style={{
-                                  fontFamily: 'Segoe UI',
-                                  fontSize: '13px',
-                                }}
-                              >
-                               {user?.id}
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={5}>
-                              <Typography
-                                style={{
-                                  fontFamily: 'Segoe UI',
-                                  fontSize: '13px',
-                                }}
-                              >
-                               {user?.nome}
-                              </Typography>
-                            </Grid>
-                            <Grid
-                              id="status-voto"
-                              item
-                              xs={1}
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <Typography
-                                style={{
-                                  fontFamily: 'Segoe UI',
-                                  fontSize: '13px',
-                                }}
-                              >
-                                {
-                                    ItemCurrentVote?.id ? (
-                                      <StatusVotacao 
-                                        idTask={ItemCurrentVote?.id}
-                                        userId={user?.id} 
-                                      />
-                                    ) : ( <> </> )
-                                  
-                                }
-                               
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                            ))
-                          }
-                        </Fragment>
-                      </Card>
+                      <Typography style={{ fontFamily: 'Segoe UI' }}>
+                        Aparecer o nome de quem esta logado
+                      </Typography>
                     </div>
                   )}
 
                   {!!FocusItemShare && (
-                    
                     <Card
                       style={{
                         display: 'flex',
@@ -1173,7 +1438,6 @@ function PlanningPokerRoom() {
                         boxShadow: 'none',
                       }}
                     >
-                    
                       <div
                         style={{
                           display: 'flex',
@@ -1216,6 +1480,31 @@ function PlanningPokerRoom() {
                         <Tooltip title={TextTooltip}>
                           <ContentCopyIcon onClick={() => copySomething()} />
                         </Tooltip>
+                      </div>
+                    </Card>
+                  )}
+
+                  {!!FocusItemChat && (
+                    <Card
+                      style={{
+                        display: 'flex',
+                        fontFamily: 'Segoe UI',
+                        width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        boxShadow: 'none',
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: '100%',
+                          width: '400px',
+                          borderColor: '#20c0c8',
+                        }}
+                        id="OW"
+                      >
+                        {' '}
                       </div>
                     </Card>
                   )}

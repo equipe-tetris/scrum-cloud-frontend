@@ -1,16 +1,13 @@
-/* .container-configurationroom-card {
-    display: 'flex';
-    height: '100%';
-    width: '100%';
-    justify-content: 'center'; 
-    align-content: 'center';
+@import url("http://st.chatango.com/js/gz/emb.js");
+
+.ubdr {
+    border: 1px solid #ffff;
 }
 
-.container-configurationroom-paper {
-    min-width: '400px';
-    display: 'inline-block';
-    justify-content: 'center';
-    align-items: 'center';
-    background: '#FFFFFF';
-    z-index: 1;
-  } */
+.message-window{
+    background-color: 'red';
+}
+.RonaldoClass:{
+    
+    background-color: 'red';
+}
