@@ -59,9 +59,6 @@ import { Colors } from '../../constants/Colors'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-
 import Logo from '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
 import API from '../../config/api'
 
@@ -79,6 +76,7 @@ import { votacaoService } from '../../services/votacao.service'
 import { createTypeReferenceDirectiveResolutionCache } from 'typescript'
 import StatusVotacao from '../../components/StatusVotacao/StatusVotacao'
 import ValorVoto from '../../components/ValorVotoIntegrante/ValorVoto'
+import ChatIcon from '@mui/icons-material/Chat';
 import { FormatColorResetRounded } from '@mui/icons-material'
 
 const MySwal = withReactContent(Swal);
@@ -121,8 +119,6 @@ const useStyles = {
   submit: {},
   ubdr2: { border: '1px solid rgb(204, 0, 0)' },
 }
-
-const MySwal = withReactContent(Swal);
 
 interface InfoTask {
   idTask?: number
@@ -188,6 +184,7 @@ function PlanningPokerRoom() {
   const [FinalValueTask, setFinalValueTask] = useState('')
   const [PersistenceFinalValue, setPersistenceFinalValue] = useState('')
   const [ItemIsFinished, setItemIsFineshed] = useState(false)
+  const [ItemSelectedByDev, setItemSelectedByDev] = useState(false);
 
   useEffect(() => {
     if (FocusItemChat === true) {
@@ -215,6 +212,8 @@ function PlanningPokerRoom() {
 
   const history = useHistory()
   let crypto = require('crypto')
+
+  const linkSala = `http://localhost:3000/planningpokerroom/${idNumber}`;
 
   let gettingData = null;
 
@@ -270,7 +269,7 @@ function PlanningPokerRoom() {
     }
     
   }
-}
+
 
   const changeStatusVotacaoItem = async(statusTask: string, currentVote: CurrentVote, permitir: boolean) => {
     const statusTaskToSend = statusTask;
@@ -323,9 +322,9 @@ function PlanningPokerRoom() {
   }
 
   const setTypeCards = () => {
-    if(metrica == 'PADRAO') {
+    if(metrica === 'PADRAO') {
       setCardList(Metrica.Padrao)
-    } else if(metrica == 'FIBONACCI'){
+    } else if(metrica === 'FIBONACCI'){
       setCardList(Metrica.Fibonacci)
     } else {
       setCardList(Metrica.Relativa)
@@ -355,7 +354,7 @@ function PlanningPokerRoom() {
 
   useEffect(() => {
     setTypeCards();
-  }, [Metrica])
+  }, [metrica])
 
   useEffect(() => {
     buscarDadosSalaPorId();
@@ -368,42 +367,12 @@ function PlanningPokerRoom() {
          buscarTasksPorIdSala();
        } else {
          buscarTasksPorIdSala();
-        //  buscarTaskAtualParaVotacaoPorIdSala();
+         buscarTaskAtualParaVotacaoPorIdSala();
        }
      }, 3000)
    }, [])
 
 
-
-  //cards selecionados pelos participantes da sala
-  const CardSelect = [
-    { index: 0, name: 'Card 1' },
-    { index: 1, name: 'Card 2' },
-    { index: 2, name: 'Card 3' },
-  ]
-
-  const criarSalaPlanning = () => {
-    const salaPlanning = {
-      nome: nomeSala,
-      // scrumMaster: scrumMaster,
-      metricaSala: metricaSala,
-      equipe: equipe,
-    }
-
-    try {
-      const res = planningService.cadastrarSalaPlanning(salaPlanning)
-
-      if (res) {
-        console.log('Sucess!')
-      }
-
-      setNomeSala('')
-      setMetricaSala('')
-      setEquipe(0)
-    } catch (e) {
-      console.log(e)
-    }
-  }
 
   const handleIncrement = () => {
     setVoteCounter(VoteCounter + 1)
@@ -443,16 +412,6 @@ function PlanningPokerRoom() {
       getClipBoard()
     }
   }
-
-  // const buscarTaskAtualParaVotacaoPorIdSala = async() => {
-  //   try {
-  //     const res = await taskService.buscarTaskAtualParaVotacaoPorIdSala(idNumber);
-
-  //    setItemCurrentVote(res.data);
-  //   } catch(e) {
-  //     console.log(e)
-  //   }
-  // }
 
   const buscarDadosSalaPorId = async() => {
     try {
@@ -586,7 +545,7 @@ function PlanningPokerRoom() {
     }
 
     MySwal.fire({
-      title: <p>Mudar item em votação? </p>,
+      title: <p>{ userLogged?.tipoUsuario === 'SM' ? 'Mudar item em votação?' : 'Mudar item em evidência' }</p>,
       showConfirmButton: true,
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
@@ -741,7 +700,7 @@ function PlanningPokerRoom() {
             }}
           >
             <Typography style={{ fontWeight: 'bold', fontFamily: 'Segoe UI' }}>
-              Sprint plannig {FormatDate(undefined, 'DD/MM/YYYY')}
+              Sprint planning {FormatDate(undefined, 'DD/MM/YYYY')}
             </Typography>
             <div style={{ display: 'flex', flexDirection: 'row', flex: 0.22 }}>
               <Typography
@@ -751,9 +710,8 @@ function PlanningPokerRoom() {
                   fontFamily: 'Segoe UI',
                 }}
               >
-                Nome do usuário | Logout{' '}
+                { userLogged?.nome }
               </Typography>
-              <ExitToAppIcon onClick={() => history.push('/')}></ExitToAppIcon>
             </div>
           </div>
           <Card
@@ -772,26 +730,31 @@ function PlanningPokerRoom() {
               <p style={{ margin: '1% 0 1% 2%', color: '#ffffff' }}> {Vote}</p>
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginLeft: '1%',
-              }}
-            >
-              <Switch
-                checked={checked}
-                onChange={handleChange}
-                color="primary"
-              ></Switch>
+            {
+              userLogged.tipoUsuario === 'SM' && ItemCurrentVote?.id ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginLeft: '1%',
+                  }}
+                >
+                  <Switch
+                    checked={checked}
+                    onChange={handleChangeEndVote}
+                    color="primary"
+                  ></Switch>
 
-              <Typography
-                style={{ fontFamily: 'Segoe UI', fontWeight: 'bold' }}
-              >
-                Finalização de voto
-              </Typography>
-            </div>
+                  <Typography
+                    style={{ fontFamily: 'Segoe UI', fontWeight: 'bold' }}
+                  >
+                    Finalizar votação deste item
+                  </Typography>
+                </div>
+              ) : (null)
+             
+            }
             <Grid container spacing={2}>
               <Grid item xs={7} style={{ marginLeft: 0 }}>
                 {/* <div style={{ width: '60%' }}> */}
@@ -867,7 +830,7 @@ function PlanningPokerRoom() {
                         boxShadow: 'none',
                       }}
                     >
-                      Nome do usuário
+                      {ItemCurrentVote?.conteudo}
                     </Card>
                   </Card>
 
@@ -923,10 +886,11 @@ function PlanningPokerRoom() {
                             justifyContent: 'center',
                             border: '1px solid'.concat(Colors.Gray),
                             borderBottom: '1px solid'.concat(Colors.Primary),
+                            cursor: 'pointer'
                           }}
                         >
                           <Typography style={{ padding: '5%' }}>
-                            {item.name}
+                            {item}
                           </Typography>
                         </Card>
                         {index === 2 && (
@@ -941,17 +905,11 @@ function PlanningPokerRoom() {
                         {index === 11 && (
                           <div style={{ flexBasis: '100%', height: 0 }}></div>
                         )}
-                        {/* {index === 10 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )}
-                      {index === 11 && (
-                        <div style={{ flexBasis: '100%', height: 0 }}></div>
-                      )} */}
+                       
                       </>
-                    ))}
+                    )))}
                   </div>
-                )}
-                {/* </div> */}
+                 }
               </Grid>
               <Grid item xs={5}>
                 <Grid
@@ -1000,53 +958,9 @@ function PlanningPokerRoom() {
                         color: Colors.Green,
                       }}
                     >
-                      0
+                      {NumberVoteTask}
                     </Typography>
                   </Grid>
-                  <Grid
-                    item
-                    xs={3}
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
-                    <Typography
-                      style={{
-                        fontFamily: 'Segoe UI',
-                        fontWeight: 'bold',
-                        marginLeft: '2%',
-                      }}
-                    >
-                      Min
-                    </Typography>
-                    <MinimizeIcon style={{ color: Colors.Red }} />
-                  </Grid>
-
-                  <Grid
-                    item
-                    xs={3}
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
-                    <Typography
-                      style={{
-                        fontFamily: 'Segoe UI',
-                        fontWeight: 'bold',
-                        marginLeft: '2%',
-                      }}
-                    >
-                      Máx
-                    </Typography>
-                    <MinimizeIcon style={{ color: Colors.Orange }} />
-                  </Grid>
-
                   <Grid
                     item
                     xs={3}
@@ -1066,8 +980,40 @@ function PlanningPokerRoom() {
                     >
                       Média
                     </Typography>
-                    <MinimizeIcon style={{ color: Colors.LightBlue }} />
+                    {
+                      infoTask?.mediaVotosNumericos ? (
+                        infoTask?.mediaVotosNumericos
+                      ) : ( <MinimizeIcon style={{ color: Colors.Red }} /> )
+                    } 
+                    
                   </Grid>
+
+                  <Grid
+                    item
+                    xs={3}
+                    style={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <Typography
+                      style={{
+                        fontFamily: 'Segoe UI',
+                        fontWeight: 'bold',
+                        marginLeft: '2%',
+                      }}
+                    >
+                      Moda
+                    </Typography>
+                    {infoTask?.moda ? (
+                      infoTask?.moda
+                      ) : ( <MinimizeIcon style={{ color: Colors.Orange }} />) 
+                     
+                    }
+                  </Grid>
+
                   <Grid
                     item
                     xs={3}
@@ -1088,7 +1034,11 @@ function PlanningPokerRoom() {
                     >
                      Valor Final
                     </Typography>
-                    {PersistenceFinalValue}
+                    { 
+                      PersistenceFinalValue ? (
+                        PersistenceFinalValue
+                      ) : (<MinimizeIcon style={{ color: Colors.Orange }} />)
+                    }
                   </Grid>
                 </Grid>
                 <div
@@ -1422,11 +1372,13 @@ function PlanningPokerRoom() {
                         </div>
 
                         <Fragment>
-                          <Grid
+                          {
+                            ListTask.map((task: any) => (
+                              <Grid
                             container
                             spacing={3}
                             style={{ padding: '10px', alignItems: 'center' }}
-                          >
+                              >
                             <Grid
                               id="status"
                               item
@@ -1477,6 +1429,7 @@ function PlanningPokerRoom() {
                                         color: Colors.Green, 
                                         cursor: 'pointer'
                                       }}
+                                      onClick={(evt) => itemClicked(task)}
                                     ></FlagIcon> 
                                   ) || ( <FlagOutlinedIcon style={{ cursor: 'pointer' }} /> ) 
                                 )   
@@ -1489,7 +1442,7 @@ function PlanningPokerRoom() {
                               xs={1}
                               style={{
                                 display: 'flex',
-                                justifyContent: 'center',
+                                justifyContent: 'center'
                               }}
                             >
                               <Typography
@@ -1498,7 +1451,7 @@ function PlanningPokerRoom() {
                                   fontSize: '13px',
                                 }}
                               >
-                                1
+                               {task?.id}
                               </Typography>
                             </Grid>
                             <Grid item xs={5}>
@@ -1508,7 +1461,7 @@ function PlanningPokerRoom() {
                                   fontSize: '13px',
                                 }}
                               >
-                                Nome da história
+                               {task?.conteudo}
                               </Typography>
                             </Grid>
                             <Grid
@@ -1531,6 +1484,9 @@ function PlanningPokerRoom() {
                              
                             </Grid>
                           </Grid>
+                            ))
+                          }
+                          
                         </Fragment>
                       </Card>
                     </div>
@@ -1730,7 +1686,7 @@ function PlanningPokerRoom() {
                         }}
                       >
                         <Typography style={{ fontSize: '14px' }}>
-                          {CriptoText}
+                          {linkSala}
                         </Typography>
                       </div>
                       <div

@@ -101,21 +101,6 @@ function Home() {
                     <div onClick={() => GotoNextPage()} className="new-team"><i className="fas fa-plus"></i></div>
                 </div>
             </div>
-            <p className="dashboard-title">Suas salas de Retrospective</p>
-            <hr></hr>
-            <div className="teams-cards">
-                <TeamCard />
-                <div className="box-new-team">
-                    <div 
-                        onClick={() => setModalShow(true)} 
-                        className="new-team">
-                            <i 
-                                className="fas fa-plus">
-                                </i>
-                                </div>
-                </div>
-            </div>
-
             <ModalTime show={modalShow} onHide={() => setModalShow(false)} />
         </div>
     )
