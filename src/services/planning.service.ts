@@ -15,6 +15,11 @@ export const planningService = {
         return axios.get(endpoint);
     },
 
+    async buscarSalasPorIdIntegrante(idUser: number){
+        const endpoint = `${apiUrl}/buscarSalasPorIdIntegrante/${idUser}`;
+        return axios.get(endpoint);
+    },
+
     async buscarDadosSalaPorId(idSala: number) {
         const endpoint = `${apiUrl}/buscarSalaPorId/${idSala}`;
         return axios.get(endpoint);
@@ -22,6 +27,16 @@ export const planningService = {
 
     async buscarIntegrantesEquipePorIdSala(idSala: number) {
         const endpoint = `${apiUrl}/buscarIntegrantesEquipePorIdSala/${idSala}`;
+        return axios.get(endpoint);
+    },
+
+    async downloadRelatorioVotacao(idSala: number) {
+        const endpoint = `${apiUrl}/gerarRelatorioDaSala/${idSala}`;
+        return axios.get(endpoint, { responseType: 'blob'});
+    },
+
+    async buscarComboIntegrantesSala(idSala: number) {
+        const endpoint = `${apiUrl}/buscarComboIntegrantesSala/${idSala}`;
         return axios.get(endpoint);
     }
 

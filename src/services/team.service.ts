@@ -14,6 +14,11 @@ export const teamService = {
         return axios.get(endpoint);
     },
 
+    async buscarPorIdIntegrante(id: number) {
+        const endpoint = `${apiUrl}/buscarPorIdIntegrante/${id}`
+        return axios.get(endpoint);
+    },
+
     async buscarIntegrantesEquipe(id: number) {
         const endpoint = `${apiUrl}/buscarIntegrantesEquipe/${id}`
         return axios.get(endpoint);

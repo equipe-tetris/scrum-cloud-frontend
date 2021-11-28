@@ -13,3 +13,12 @@
 .card .card-body {
     text-align: center;
 }
+
+.card-container .btn-container {
+    margin-left: 15px;
+    padding:0px 0px 0px 10px;
+}
+
+.card-container .btn-container button {
+    margin: 15px;
+}
