@@ -12,16 +12,27 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import fileSaver from 'file-saver';
+
+import LinearProgress from '@mui/material/LinearProgress';
 
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import HailIcon from '@mui/icons-material/Hail';
 
 import './TeamCard.css';
 import { FormControlUnstyled } from '@mui/material';
+import { planningService } from '../../services/planning.service';
+import { useEffect } from 'react';
+import { authService } from '../../services/auth.service';
 
 function TeamCard(props: any) {
+    const userLogged = authService.getDataLoggedUser();
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [listComboIntegrantes, setListComboIntegrantes] = useState([]);
+
+    const idSala = props?.salaPlanning?.id;
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -30,6 +41,47 @@ function TeamCard(props: any) {
      const handleClose = () => {
         setOpen(false);
     };
+
+    const downloadRelatorio = async(idSala: number) => {
+        setLoading(true);
+        try {
+
+            const now = formatarData();
+
+            const res = await planningService.downloadRelatorioVotacao(idSala);
+
+            const blob = new Blob([res.data], { type: "application/octet-stream" });
+            fileSaver.saveAs(blob, `Relatório de Votacao - ${now}.xlsx`);
+
+            setLoading(false);
+        } catch(e) {
+            console.log(e)
+        }
+    }
+
+    const buscarComboIntegrantesSala = async() => {
+        try {
+            if(idSala) {
+                const res = await planningService.buscarComboIntegrantesSala(idSala);
+                setListComboIntegrantes(res.data);
+            }
+          
+        } catch(e) {
+            console.log(e)
+        }
+    }
+
+    const formatarData = () => {
+        const data = new Date(),
+        dia  = data.getDate().toString().padStart(2, '0'),
+        mes  = (data.getMonth()+1).toString().padStart(2, '0'),
+        ano  = data.getFullYear();
+    return dia+"/"+mes+"/"+ano;
+    }
+
+    useEffect(() => {
+        buscarComboIntegrantesSala()
+    }, [idSala]);
 
     if(props.equipe) {
         return ( 
@@ -55,30 +107,41 @@ function TeamCard(props: any) {
                             </div>
                         </div>
                     </Link>
-                    <div className="btn-container">
-                        <Button variant="outlined"><AssessmentIcon /></Button>
-                        <Button variant="outlined" onClick={handleClickOpen}><HailIcon /></Button>
-                    </div>
-
+                    {
+                        userLogged?.tipoUsuario === 'SM' ? (
+                            <div className="btn-container">
+                                { !!loading && ( <LinearProgress /> ) }
+                                <Button variant="outlined" onClick={() => downloadRelatorio(props?.salaPlanning?.id)}><AssessmentIcon /></Button>
+                                <Button variant="outlined" onClick={handleClickOpen}><HailIcon /></Button>
+                            </div>
+                        ) : (<></>)
+                    }
+                    
+                   
+                    
                     <Dialog open={open} onClose={handleClose}>
                         <DialogTitle>Selecione um Scrum Master</DialogTitle>
                         <DialogContent>
                             <DialogContentText>
                                 Escolha um usuário para se tornar o Scrum Master privisório desta sala.
                             </DialogContentText>
-                            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                                <InputLabel id="demo-simple-select-standard-label">Age</InputLabel>
+                            <FormControl variant="standard" sx={{ m: 1, minWidth: 250 }}>
+                                <InputLabel id="demo-simple-select-standard-label">Integrante</InputLabel>
                                 <Select
                                     labelId="demo-simple-select-standard-label"
                                     id="demo-simple-select-standard"
                                     label="Age"
                                 >
                                     <MenuItem value="">
-                                        <em>None</em>
+                                        <em>Nenhum</em>
                                     </MenuItem>
-                                    <MenuItem value={10}>Ten</MenuItem>
-                                    <MenuItem value={20}>Twenty</MenuItem>
-                                    <MenuItem value={30}>Thirty</MenuItem>
+                                    {
+                                        listComboIntegrantes.map((user: any) => (
+                                            <MenuItem key={user?.id} value={user?.id}>{user?.label}</MenuItem>
+                                        ))
+                                    }
+                                    
+                                
                                 </Select>
                             </FormControl>
                         </DialogContent>

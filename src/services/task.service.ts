@@ -32,5 +32,15 @@ export const taskService = {
     async buscarTaskAtualParaVotacaoPorIdSala(idSala: number) {
         const endpoint = `${apiUrl}/buscarTaskAtualParaVotacaoPorIdSala/${idSala}`;
         return axios.get(endpoint);
+    },
+
+    async inserirTask(idSala: number, task: any) {
+        const endpoint = `${apiUrl}/inserir/${idSala}`;
+        return axios.post(endpoint, task);
+    },
+
+    async deletarPorId(idTask: number) {
+        const endpoint = `${apiUrl}/deletarPorId/${idTask}`;
+        return axios.delete(endpoint);
     }
 }

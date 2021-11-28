@@ -20,17 +20,29 @@ function Home() {
 
     const buscarTimes = async() => {
         try {
-            const res = await teamService.buscarTimesPorIdUsuario(userLogged.id);
 
-            setEquipes(res.data);
+            if(userLogged?.tipoUsuario === 'SM') {
+                const res = await teamService.buscarTimesPorIdUsuario(userLogged.id);
+                setEquipes(res.data);
+            } else {
+                const res = await teamService.buscarPorIdIntegrante(userLogged.id);
+                setEquipes(res.data);
+            }
+          
         } catch(e) { console.log(e); }
     }
 
     const buscarSalasPorIdUsuario = async() => {
         try {
-            const res = await planningService.buscarSalasPlanningPorIdUsuario(userLogged.id);
 
-            setSalasPlanning(res.data);
+            if(userLogged?.tipoUsuario === 'SM') {
+                const res = await planningService.buscarSalasPlanningPorIdUsuario(userLogged.id);
+                setSalasPlanning(res.data);
+            } else {
+                const res = await planningService.buscarSalasPorIdIntegrante(userLogged.id);
+                setSalasPlanning(res.data);
+            }
+           
         } catch(e) {
             console.log(e)
         }

@@ -119,7 +119,7 @@ function PlanningPokerRoom() {
   const idNumber = Number(id);
 
   const [QuantidadeHistoria, setQuantidadeHistoria] = React.useState(1)
-  const [Historias, setHistorias] = React.useState('')
+  const [Historia, setHistoria] = React.useState('')
 
   const [SessionList, setSessionList] = React.useState([])
 
@@ -156,6 +156,8 @@ function PlanningPokerRoom() {
 
   const history = useHistory()
   let crypto = require('crypto')
+
+  let gettingData = null;
 
 
   const handleChangeEndVote = (event) => {
@@ -340,7 +342,7 @@ function PlanningPokerRoom() {
   }, [])
 
   useEffect(() => {
-   setInterval(() => {
+    gettingData = setInterval(() => {
       if(userLogged?.tipoUsuario === 'SM') {
         buscarTasksPorIdSala();
       } else {
@@ -349,6 +351,8 @@ function PlanningPokerRoom() {
       }
     }, 3000)
   }, [])
+
+ 
 
   function handleFocusItem(Case) {
     switch (Case) {
@@ -503,6 +507,7 @@ function PlanningPokerRoom() {
 
   const buscarNumVotosPorIdTask = async(idCurrentTask: number) => {
     try {
+      
       const res = await votacaoService.buscarNumVotosPorIdTask(idCurrentTask);
 
       setNumberVoteTask(res.data);
@@ -531,14 +536,60 @@ function PlanningPokerRoom() {
 
     try {
       const res = await taskService.getValorFinalTaskPorId(idTask);
-
-     setPersistenceFinalValue(res.data);
-
+      setPersistenceFinalValue(res.data);
     } catch(e) {
       console.log(e);
     }
   }
 
+  const inserirTask = async() => {
+
+    const taskToSend = {
+      listTask: [NewStory]
+    }
+
+    MySwal.fire({
+      title: <p>Cadastrar novo item para votação? </p>,
+      showConfirmButton: true,
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'OK'
+    }).then((result) => {
+      if(result.isConfirmed) {
+        try {
+          const res = taskService.inserirTask(idNumber, taskToSend);
+    
+          setNewStory('');
+        } catch(e) {
+          console.log(e);
+        }
+      }
+    });
+  }
+    
+  const deletarTask = (idTask: number) => {
+      MySwal.fire({
+        title: <p>Deletar este item? </p>,
+        showConfirmButton: true,
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'OK'
+      }).then((result) => {
+        if(result.isConfirmed) {
+          deletarTaskPorId(idTask);
+        }
+      });
+    }
+   
+  const deletarTaskPorId = async(idTask: number) => {
+      try {
+        const res = await taskService.deletarPorId(idTask);
+      } catch(e) {
+        console.log(e);
+      }
+  }
+    
+  
   
   return (
     <div className="container-login">
@@ -984,7 +1035,7 @@ function PlanningPokerRoom() {
 
                       {
                       userLogged?.tipoUsuario === 'SM' ? (
-                        !!FocusItemAddNewStory ? (
+                        
                           <div style={{ display: 'flex', alignItems: 'center' }}>
                               <Input
                                 placeholder="Nome da história"
@@ -1009,6 +1060,7 @@ function PlanningPokerRoom() {
                                   alignItems: 'center',
                                   width: '10%',
                                 }}
+                                onClick={inserirTask}
                               >
                                 <ControlPointIcon
                                   style={{ width: '30px', height: '30px' }}
@@ -1016,31 +1068,7 @@ function PlanningPokerRoom() {
                                 />
                               </IconButton>
                         </div>
-                      ) : (
-                        <div
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            width: '100%',
-                            marginLeft: '10%',
-                          }}
-                        >
-                          {!checked &&
-                          <IconButton
-                            color="primary"
-                            style={{
-                              justifyContent: 'center',
-                              width: '10%',
-                            }}
-                          >
-                            <ControlPointIcon
-                              style={{ width: '30px', height: '30px' }}
-                              onMouseEnter={() => handleFocusItem(4)}
-                            />
-                          </IconButton>
-                          }
-                        </div>
-                       )
+                      
                       ) : (<></>)
                       } 
 
@@ -1191,6 +1219,7 @@ function PlanningPokerRoom() {
                                         color: Colors.LightBlue, 
                                         cursor: 'pointer'
                                       }}
+                                      onClick={(evt) => itemClicked(task)}
                                     ></FlagIcon> 
                                   ) || task?.status === 'ATUAL' && (
                                     <FlagIcon
@@ -1243,7 +1272,8 @@ function PlanningPokerRoom() {
                               {
                                 userLogged?.tipoUsuario === 'SM' ? (
                                   <HighlightOffIcon
-                                    style={{ color: Colors.Red }}
+                                    style={{ color: Colors.Red, cursor: 'pointer' }}
+                                    onClick={(e) => deletarTask(task?.id)}
                                   ></HighlightOffIcon>
                                 ) : (<> </>)
                                  
