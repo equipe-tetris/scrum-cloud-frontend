@@ -55,8 +55,8 @@ import ChatIcon from '@mui/icons-material/Chat'
 
 import { FormatDate } from '../../utils/DateUtil'
 import { Colors } from '../../constants/Colors'
-// import Swal from 'sweetalert2'
-// import withReactContent from 'sweetalert2-react-content'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 import Logo from '../../assets/imagens-projeto/logo-scrumcloud-bg.png'
 import API from '../../config/api'
@@ -102,7 +102,7 @@ const useStyles = {
   ubdr2: { border: '1px solid rgb(204, 0, 0)' },
 }
 
-// const MySwal = withReactContent(Swal);
+const MySwal = withReactContent(Swal);
 
 interface InfoTask {
   idTask?: number
@@ -216,53 +216,53 @@ function PlanningPokerRoom() {
 
   const handleChangeEndVote = (event) => {
     if(event.target.checked) {
-      // MySwal.fire({
-      //   title: <p>Finalizar votação deste item? </p>,
-      //   showConfirmButton: true,
-      //   showCancelButton: true,
-      //   cancelButtonText: 'Cancelar',
-      //   confirmButtonText: 'OK'
-      // }).then((result) => {
-      //   if(result.isConfirmed) {
-      //     setVote('Votação finalizada')
-      //     setColorVote('#F70000')
-      //     setChecked(true);
-      //     changeStatusVotacaoItem('FINALIZADO', ItemCurrentVote, true);
+      MySwal.fire({
+        title: <p>Finalizar votação deste item? </p>,
+        showConfirmButton: true,
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'OK'
+      }).then((result) => {
+        if(result.isConfirmed) {
+          setVote('Votação finalizada')
+          setColorVote('#F70000')
+          setChecked(true);
+          changeStatusVotacaoItem('FINALIZADO', ItemCurrentVote, true);
     
-      //     buscarInfoTaskPorId(ItemCurrentVote?.id);
+          buscarInfoTaskPorId(ItemCurrentVote?.id);
             
-      //     // getValorFinalTaskPorId(ItemCurrentVote?.id);
+          // getValorFinalTaskPorId(ItemCurrentVote?.id);
             
-      //     setItemIsFineshed(true);
+          setItemIsFineshed(true);
           
-      //   }
-      // });
+        }
+      });
       
     } else {
-    //   MySwal.fire({
-    //     title: <p>Colocar este novamente para votação? </p>,
-    //     showConfirmButton: true,
-    //     showCancelButton: true,
-    //     cancelButtonText: 'Cancelar',
-    //     confirmButtonText: 'OK'
-    //   }).then((result) => {
-    //     if(result.isConfirmed) {
-    //       setVote('Votação em andamento');
-    //       setColorVote('#00B81C');
-    //       setChecked(false);
-    //       changeStatusVotacaoItem('ATUAL', ItemCurrentVote, true);
-    //       setInfoTask(null);
+      MySwal.fire({
+        title: <p>Colocar este novamente para votação? </p>,
+        showConfirmButton: true,
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'OK'
+      }).then((result) => {
+        if(result.isConfirmed) {
+          setVote('Votação em andamento');
+          setColorVote('#00B81C');
+          setChecked(false);
+          changeStatusVotacaoItem('ATUAL', ItemCurrentVote, true);
+          setInfoTask(null);
 
-    //       setPersistenceFinalValue(null);
+          setPersistenceFinalValue(null);
 
-    //       setItemIsFineshed(false);
+          setItemIsFineshed(false);
 
-    //       setTimeout(() => {
-    //         buscarTasksPorIdSala();
-    //       }, 700)
-    //     }
-    //   });
-    // }
+          setTimeout(() => {
+            buscarTasksPorIdSala();
+          }, 700)
+        }
+      });
+    }
     
   }
 }
@@ -273,7 +273,7 @@ function PlanningPokerRoom() {
     const permitirToSend = permitir;
 
     try {
-      // const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend, permitirToSend);
+      const res = await taskService.mudarStatusTaskPorId(statusTaskToSend, idTaskToSend, permitirToSend);
     } catch(e) {
       console.log(e);
     }
