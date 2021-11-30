@@ -38,6 +38,11 @@ export const planningService = {
     async buscarComboIntegrantesSala(idSala: number) {
         const endpoint = `${apiUrl}/buscarComboIntegrantesSala/${idSala}`;
         return axios.get(endpoint);
+    },
+
+    async changeSM(idUser: number, idSala: number) {
+        const endpoint = `${apiUrl}/change-sm?idUsuario=${idUser}&idSala=${idSala}`;
+        return axios.post(endpoint);
     }
 
 }

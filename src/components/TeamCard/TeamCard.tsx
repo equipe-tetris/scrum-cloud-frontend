@@ -13,6 +13,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import fileSaver from 'file-saver';
+import Tooltip from '@mui/material/Tooltip';
 
 import LinearProgress from '@mui/material/LinearProgress';
 
@@ -31,15 +32,29 @@ function TeamCard(props: any) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [listComboIntegrantes, setListComboIntegrantes] = useState([]);
+    const [IdUser, setIdUser] = useState(0);
 
     const idSala = props?.salaPlanning?.id;
+
+    const handleChange = (event: SelectChangeEvent) => {
+        const value = event.target.value;
+        const valueNumber = Number(value);
+
+        setIdUser(valueNumber);
+    }
 
     const handleClickOpen = () => {
         setOpen(true);
     };
 
-     const handleClose = () => {
+     const handleClose = async() => {
         setOpen(false);
+
+        try {
+            const res = await planningService.changeSM(IdUser, idSala);
+        } catch(e) {
+            console.log(e)
+        }
     };
 
     const downloadRelatorio = async(idSala: number) => {
@@ -73,10 +88,10 @@ function TeamCard(props: any) {
 
     const formatarData = () => {
         const data = new Date(),
-        dia  = data.getDate().toString().padStart(2, '0'),
-        mes  = (data.getMonth()+1).toString().padStart(2, '0'),
-        ano  = data.getFullYear();
-    return dia+"/"+mes+"/"+ano;
+            dia  = data.getDate().toString().padStart(2, '0'),
+            mes  = (data.getMonth()+1).toString().padStart(2, '0'),
+            ano  = data.getFullYear();
+        return dia+"/"+mes+"/"+ano;
     }
 
     useEffect(() => {
@@ -111,8 +126,15 @@ function TeamCard(props: any) {
                         userLogged?.tipoUsuario === 'SM' ? (
                             <div className="btn-container">
                                 { !!loading && ( <LinearProgress /> ) }
-                                <Button variant="outlined" onClick={() => downloadRelatorio(props?.salaPlanning?.id)}><AssessmentIcon /></Button>
-                                <Button variant="outlined" onClick={handleClickOpen}><HailIcon /></Button>
+                                <Tooltip title="Baixe um relatório de votação desta sala de planning poker.">
+                                    <Button variant="outlined" onClick={() => downloadRelatorio(props?.salaPlanning?.id)}><AssessmentIcon /></Button>
+                                </Tooltip>
+                                
+                                
+                                <Tooltip title="Selecione um usuário para ter permissões de Scrum Master nesta sala.">
+                                    <Button variant="outlined" onClick={handleClickOpen}><HailIcon /></Button>
+                                </Tooltip>
+                                
                             </div>
                         ) : (<></>)
                     }
@@ -131,13 +153,19 @@ function TeamCard(props: any) {
                                     labelId="demo-simple-select-standard-label"
                                     id="demo-simple-select-standard"
                                     label="Age"
+                                    onChange={handleChange}
                                 >
-                                    <MenuItem value="">
+                                    <MenuItem value={null}>
                                         <em>Nenhum</em>
                                     </MenuItem>
                                     {
                                         listComboIntegrantes.map((user: any) => (
-                                            <MenuItem key={user?.id} value={user?.id}>{user?.label}</MenuItem>
+                                            <MenuItem 
+                                                key={user?.id} 
+                                                value={user?.id}
+                                            >
+                                                {user?.label}
+                                            </MenuItem>
                                         ))
                                     }
                                     

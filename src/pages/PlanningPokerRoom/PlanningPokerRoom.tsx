@@ -78,6 +78,8 @@ import StatusVotacao from '../../components/StatusVotacao/StatusVotacao'
 import ValorVoto from '../../components/ValorVotoIntegrante/ValorVoto'
 import ChatIcon from '@mui/icons-material/Chat';
 import { FormatColorResetRounded } from '@mui/icons-material'
+import Modal from '@mui/material/Modal';
+import { alertaService } from '../../services/alerta.service'
 
 const MySwal = withReactContent(Swal);
 
@@ -135,6 +137,18 @@ interface CurrentVote {
   status?: string
 }
 
+const styleModal = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 function PlanningPokerRoom() {
   const userLogged = authService.getDataLoggedUser()
 
@@ -185,6 +199,27 @@ function PlanningPokerRoom() {
   const [PersistenceFinalValue, setPersistenceFinalValue] = useState('')
   const [ItemIsFinished, setItemIsFineshed] = useState(false)
   const [ItemSelectedByDev, setItemSelectedByDev] = useState(false);
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [Alert, setAlert] = useState<{id?: number, mensagem?: string, idSala?: number, idUsuario?: number}>({});
+
+  useEffect(() => {
+    buscarAlertasPorIdSalaAndIdUser();
+  }, [])
+
+  const buscarAlertasPorIdSalaAndIdUser = async() => {
+    try {
+      const res = await alertaService.buscarAlertasPorIdSalaAndIdUser(idNumber, userLogged?.id);
+      setAlert(res.data);
+      if(res.data) {
+        handleOpen();
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
 
   useEffect(() => {
     if (FocusItemChat === true) {
@@ -558,7 +593,6 @@ function PlanningPokerRoom() {
         buscarNumVotosPorIdTask(currentVote?.id);
         changeStatusVotacaoItem('ATUAL', currentVote, false);
 
-        
         if(currentVote?.status === 'FINALIZADO') {
           setItemSelectedByDev(true);
         } else {
@@ -680,6 +714,18 @@ function PlanningPokerRoom() {
   
   return (
     <div className="container-login">
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={styleModal}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            { Alert?.mensagem }
+          </Typography>
+        </Box>
+      </Modal>
       <CssBaseline />
       <div className=".container-configurationroom-paper">
         <div
