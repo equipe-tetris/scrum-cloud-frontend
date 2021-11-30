@@ -25,9 +25,6 @@ function Navbar() {
                     <li className="nav-item active">
                         <a className="nav-link" href="/home/dashboard">Dashboard <span className="sr-only">(current)</span></a>
                     </li>
-                    <li className="nav-item">
-                        <a className="nav-link" href="#">Estatísticas</a>
-                    </li>
                     <li className="logout">
                         <a onClick={() => logout} className="nav-link" href="/"><i className="fas fa-user"></i></a>
                     </li>

@@ -351,7 +351,7 @@ function ConfigurationPlanningPoker() {
                   ></BeenhereIcon>
                 }
                 disableUnderline={true}
-                placeholder="Task"
+                placeholder="Nome da sala"
                 value={nomeSala}
                 onChange={event => setNomeSala(event.target.value)}
                 style={{

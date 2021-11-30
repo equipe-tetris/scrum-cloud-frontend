@@ -20,5 +20,20 @@ export const votacaoService = {
         */
         const endpoint = `${apiUrl}/inserirVoto`;
         return axios.post(endpoint, data);
+    },
+
+    async buscarInfoTaskPorId(idTask: number){
+        const endpoint = `${apiUrl}/buscarInfoVotosPorIdTask/${idTask}`;
+        return axios.get(endpoint); 
+    },
+
+    async buscarNumVotosPorIdTask(idTask: number) {
+        const endpoint = `${apiUrl}/buscarNumVotosPorIdTask/${idTask}`;
+        return axios.get(endpoint)
+    },
+
+    async buscarVotoPorIdTaskAndUsuario(idTask: number, idUser: number) {
+        const endpoint = `${apiUrl}/buscarVotoPorIdTaskAndUsuario?idTask=${idTask}&idUsuario=${idUser}`;
+        return axios.get(endpoint);
     }
 }
